@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  api:
+    image: reviewdb-backend
+    container_name: reviewdb-backend
+    build: ./backend
+    command: sh -c "npm run dev"
+    volumes:
+      - ./backend/:/usr/src/app/
+    ports:
+      - 3000:3000
+    env_file:
+      - ./backend/.env.dev
+
