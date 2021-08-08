@@ -59,11 +59,16 @@ export default function SignInSide() {
     password: password,
     password2: password2,
   };
-  async function handleSubmit(){ 
-  axios.post('https://localhost:8080/register',content)
-  .then(response => setResponse(response))
+  
+  function handleSubmit(){ 
+    console.log(content);
+    axios.post(process.env.API_URI+'/users/register',content)
+    .then(response => {
+      setResponse(response);
+      console.log(response);
+    })
   }
-
+  
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
