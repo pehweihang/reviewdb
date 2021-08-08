@@ -14,6 +14,11 @@ let UserSchema = new Schema({
         required: true,
     },
 
+    name: {
+        type: String,
+        required: true,
+    },
+
     email: {
         type: String,
         trim: true,
