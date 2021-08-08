@@ -16,6 +16,7 @@ router.get('/register', (req, res)=>{
 })
 
 router.post('/register', (req, res)=>{
+    const {name,email, password, password2} = req.body;
     let errors = [];
     console.log(' Email:' + email + ' Name:' + name + 'Password' + password);
     if (!name || !email || !password || !password2){
