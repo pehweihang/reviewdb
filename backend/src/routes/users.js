@@ -16,48 +16,52 @@ router.get('/register', (req, res)=>{
 })
 
 router.post('/register', (req, res)=>{
-    const {username, email, name, password, password2} = req.body;
     let errors = [];
-    console.log('Username ' + username + ' Email:' + email + ' Name:' + name + 'Password' + password);
-    if (!username || !email || !name || !password || !password2){
-        errors.push({msg : "Fields cannot be empty."})
+    console.log(' Email:' + email + ' Name:' + name + 'Password' + password);
+    if (!name || !email || !password || !password2){
+        errors.push({msg : "Fields cannot be empty."});
     }
 
-    if (password.length < 6|| password2.length < 6){
-        errors.push({msg : "Password must be at least 8 characters."})
+    if (password.length < 8|| password2.length < 8){
+        errors.push({msg : "Password must be at least 8 characters."});
     }
 
     if (password != password2){
-        errors.push({msg: "Passwords do not match."})
+        errors.push({msg: "Passwords do not match."});
     }
 
-    User.findOne({email : email}).exec((err, user)=>{
-        if (user) errors.push({msg: "Email already registered."})
-    })
-
-    User.findOne({username : username}).exec((err, user)=>{
-        if (user) errors.push({msg: "Username taken."})
-    })
+    if (!email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)){
+        errors.push({msg: "Please enter a valid email."}); }
 
     if (errors.length > 0){
-        res.json({
+        return res.json({
             errors : errors,
         });
     }else{
-        passwordHash = bcrypt.genSalt(11, (err, salt)=>
+        passwordHash = bcrypt.genSalt(11, (err, salt)=>{
         bcrypt.hash(password, salt, (err,hash)=>{
             if (err) throw err;
             const newUser = new User({
-                username: username,
-                email: email,
                 name: name,
+                email: email,
                 password : hash,
             })
             newUser.save().then((out)=>{
                 console.log(out);
                 res.json({msg: "success!"});
-            }).catch(out=> console.log(out));
-        }))
+            }).catch((error) => {
+                if (error.name == "MongoError" && error.code == "11000"){
+                    errors.push({msg: "Email already exist."})
+                    return res.json({
+                        errors: errors,
+                    })
+                } else{
+                    return res.status(500).send("Oh no.")
+                }
+            })
+        })
+
+        })
     }
 })
 
