@@ -21,6 +21,10 @@ let UserSchema = new Schema({
         required: true,
     },
 
+    token: {
+        type: String
+    },
+
     group: {
         type: String,
         unqiue: true,
