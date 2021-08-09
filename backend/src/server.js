@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 const router = express.Router()
+const cors = require('cors')
+app.use(cors());
 
 const mongoose = require('mongoose')
 mongoose.connect(process.env.MONGO_URI, {

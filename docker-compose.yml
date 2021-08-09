@@ -9,11 +9,23 @@ services:
     volumes:
       - ./backend/:/usr/src/app/
     ports:
-      - 3000:3000
+      - 8080:8080
     env_file:
       - ./.env.dev
     depends_on:
       - mongo
+
+  frontend:
+    image: reviewdb-frontend
+    container_name: reviewdb-frontend
+    build: ./frontend
+    command: sh -c "npm run dev"
+    volumes:
+      - ./frontend/:/usr/src/app/
+    ports:
+      - 3000:3000
+    env_file:
+      - ./.env.dev.client
 
   mongo:
     image: mongo
@@ -34,4 +46,5 @@ services:
     depends_on:
       - mongo
     
+ 
 
