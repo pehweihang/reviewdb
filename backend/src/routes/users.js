@@ -61,9 +61,7 @@ router.post('/register', async (req, res)=>{
                 const token = jwt.sign(
                     {user_id: newUser._id, email},
                     process.env.JWT_TOKEN,
-                    {
-                        expiresIn: "1d"
-                    })
+                )
                     this.token = token;
                 res.json({success: "success", token: token});
             }).catch((error) => {
@@ -76,7 +74,24 @@ router.post('/register', async (req, res)=>{
         }
 })
 
-router.post('/login', (req, res)=>{
+router.post('/login', async (req, res)=>{
+    const {email, password} = req.body;
+
+    if (!(email && password)){
+        return res.status(400).json({errors: "Missing input."})
+    }
+
+    const user = await User.findOne({email : email});
+
+    if (user && (await bcrypt.compare(password, user.password))){
+        const token = jwt.sign(
+            {user_id: user._id, email},
+            process.env.JWT_TOKEN,
+        )
+        return res.status(200).json({user: user.name, token: token})
+
+    } else return res.status(400).send("Incorrect email/password.")
+
 
 })
 
