@@ -45,26 +45,57 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SignInSide() {
   const classes = useStyles();
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [firstname, setFirstname] = useState('');
-  const [lastname, setLastname] = useState('');
-  const [password, setPassword] = useState('');
-  const [password2, setPassword2] = useState('');
-  const [response, setResponse] = useState('');
-  var content = { 
-    username: username,
-    email: email,
-    name: firstname+lastname,
-    password: password,
-    password2: password2,
-  };
+  const [fname, setFname] = useState('');
+  const [lname, setLname] = useState('');
   
-  function handleSubmit(){ 
+  const [content,setContent] = useState({ 
+    username: '',
+    email: '',
+    name: '',
+    password: '',
+    password2: '',
+  });
+
+  const setUsername = (e) => {
+    setContent({
+      ...content,username: e.target.value,
+    })
+    
+  }
+  const setEmail = (e) => {
+    setContent({
+      ...content,email: e.target.value,
+    })
+  }
+  const handleFname = (e) => {
+    setFname(e.target.value);
+    setContent({
+      ...content,name: fname+' '+lname,
+    })
+  }
+  const handleLname = (e) => {
+    setLname(e.target.value);
+    setContent({
+      ...content,name: fname+' '+lname,
+    })
+  }
+  const setPassword = (e) => {
+    setContent({
+      ...content,password: e.target.value,
+    })
+  }
+  const setCPassword = (e) => {
+    setContent({
+      ...content,password2: e.target.value,
+    })
+  }
+  console.log(content)
+  function handleSubmit(e) {
+    e.preventDefault();
     console.log(content);
-    axios.post(process.env.API_URI+'/users/register',content)
+    axios.post('http://localhost:8080'+'/users/register',content
+    )
     .then(response => {
-      setResponse(response);
       console.log(response);
     })
   }
@@ -81,11 +112,11 @@ export default function SignInSide() {
           <Typography component="h1" variant="h5">
             Register
           </Typography>
-          <form className={classes.form} noValidate onSubmit={() => handleSubmit}>
+          <form className={classes.form} noValidate onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={12}>
               <TextField
-                onChange={value => setEmail(value)}
+                onChange={setEmail}
                 variant="outlined"
                 margin="normal"
                 required
@@ -99,7 +130,7 @@ export default function SignInSide() {
               </Grid>
               <Grid item xs={12} sm={12}>
               <TextField
-                onChange={value => setUsername(value)}
+                onChange={setUsername}
                 variant="outlined"
                 margin="normal"
                 required
@@ -113,7 +144,7 @@ export default function SignInSide() {
               </Grid>
               <Grid item xs={12} sm={6}>
               <TextField
-                onChange={value => setFirstname(value)}
+                onChange={handleFname}
                 autoComplete="fname"
                 name="firstName"
                 variant="outlined"
@@ -126,7 +157,7 @@ export default function SignInSide() {
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
-                onChange={value => setLastname(value)}
+                onChange={handleLname}
                 variant="outlined"
                 fullWidth
                 id="lastName"
@@ -137,7 +168,7 @@ export default function SignInSide() {
             </Grid>
               <Grid item xs={12} sm={12}>
               <TextField
-                onChange={value => setPassword(value)}
+                onChange={setPassword}
                 variant="outlined"
                 margin="normal"
                 required
@@ -151,7 +182,7 @@ export default function SignInSide() {
               </Grid>
               <Grid item xs={12} sm={12}>
               <TextField
-                onChange={value => setPassword2(value)}
+                onChange={setCPassword}
                 variant="outlined"
                 margin="normal"
                 required
