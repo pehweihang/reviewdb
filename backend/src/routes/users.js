@@ -62,7 +62,6 @@ router.post('/register', async (req, res)=>{
                     {user_id: newUser._id, email},
                     process.env.JWT_TOKEN,
                 )
-                    this.token = token;
                 res.json({success: "success", token: token});
             }).catch((error) => {
                 console.log(error);
