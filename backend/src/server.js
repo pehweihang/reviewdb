@@ -11,7 +11,7 @@ mongoose.connect(process.env.MONGO_URI, {
     pass: process.env.MONGO_PASSWORD
 })
 
-const PORT = process.env.PORT ? process.env.PORT : 3000;
+const PORT = process.env.PORT || 3000;
 
 
 

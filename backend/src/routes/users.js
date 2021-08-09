@@ -62,10 +62,10 @@ router.post('/register', async (req, res)=>{
                     {user_id: newUser._id, email},
                     process.env.JWT_TOKEN,
                 )
-                res.json({success: "success", token: token});
+                res.json({name: name, token: token});
             }).catch((error) => {
                 console.log(error);
-                return res.status(500).json({success: "failed", errors: "Something went wrong."});
+                return res.status(500).json({errors: "Something went wrong."});
                 })
             })
         })
