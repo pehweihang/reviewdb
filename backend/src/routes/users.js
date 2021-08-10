@@ -3,6 +3,7 @@ const router = express.Router()
 
 const mongoose = require('mongoose')
 const User = require("../models/user")
+const BlacklistJWT = require("../models/userjwtblacklist")
 
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
@@ -95,6 +96,18 @@ router.post('/login', async (req, res)=>{
 })
 
 router.get('/logout', (req, res)=>{
+    const token = req.cookies.auth
+    if (token){
+        try{
+            const decoded = jwt.verify(token, process.env.JWT_TOKEN);
+            blacklist = new BlacklistJWT({
+                token: token,
+            })
+        }catch{
+            return res.status(400).json(["Invalid token"])
+        }
+    }else return res.status(400).json(["No auth token found"])
+    
 
 })
 
