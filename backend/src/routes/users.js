@@ -43,10 +43,7 @@ router.post('/register', async (req, res)=>{
     }
 
     if (errors.length > 0){
-        return res.json({
-            success: "failed",
-            errors : errors,
-        });
+        return res.status(400).json({errors : errors});
     }else{
         passwordHash = bcrypt.genSalt(11, (err, salt)=>{
         bcrypt.hash(password, salt, (err,hash)=>{
@@ -86,6 +83,9 @@ router.post('/login', async (req, res)=>{
         const token = jwt.sign(
             {user_id: user._id, email},
             process.env.JWT_TOKEN,
+            {
+                expiresIn: '7d'
+            }
         )
         return res.status(200).json({user: user.name, token: token})
 
