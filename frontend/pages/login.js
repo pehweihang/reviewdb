@@ -8,6 +8,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
+import Cookies from 'universal-cookie';
+
 const axios = require('axios');
 
 const useStyles = makeStyles((theme) => ({
@@ -48,11 +50,8 @@ const useStyles = makeStyles((theme) => ({
 export default function SignInSide() {
   const classes = useStyles();
   const [content,setContent] = useState({ 
-    username: '',
     email: '',
-    name: '',
     password: '',
-    password2: '',
   });
   const setEmail = (e) => {
     setContent({
@@ -75,7 +74,10 @@ export default function SignInSide() {
     axios.post('http://localhost:8080'+'/users/login',content
     )
     .then(response => {
-      console.log(response);
+      if (response.status == 200){
+        const cookies = new Cookies();
+        cookies.set('auth', response.data.token, { path: '/' });
+      }
     })
   }
   
@@ -159,7 +161,7 @@ export default function SignInSide() {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/Register" variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>

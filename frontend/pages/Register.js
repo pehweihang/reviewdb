@@ -8,6 +8,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
+import Cookies from 'universal-cookie';
+import { useRouter } from 'next/router'
 const axios = require('axios');
 
 const useStyles = makeStyles((theme) => ({
@@ -40,64 +42,71 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignInSide() {
+export default function SignInSide(req, res) {
   const classes = useStyles();
-  const [fname, setFname] = useState('');
-  const [lname, setLname] = useState('');
+  const router = useRouter();
   const [content,setContent] = useState({ 
-    username: '',
     email: '',
+    fname:'',
+    lname:'',
     name: '',
     password: '',
     password2: '',
   });
 
-  const setUsername = (e) => {
-    setContent({
-      ...content,username: e.target.value,
-    })
-    
-  }
   const setEmail = (e) => {
     setContent({
       ...content,email: e.target.value,
     })
+    validate();
   }
   const handleFname = (e) => {
-    setFname(e.target.value);
     setContent({
-      ...content,name: fname+' '+lname,
+      ...content,fname: e.target.value,
     })
+    validate();
   }
   const handleLname = (e) => {
-    setLname(e.target.value);
     setContent({
-      ...content,name: fname+' '+lname,
+      ...content,lname: e.target.value,
     })
+    validate();
   }
   const setPassword = (e) => {
     setContent({
       ...content,password: e.target.value,
     })
+    validate();
   }
   const setCPassword = (e) => {
     setContent({
       ...content,password2: e.target.value,
     })
+    validate();
   }
 
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = () => setShowPassword(!showPassword);
+ 
+  const [isFormValid, setIsFormValid] = useState();
+  const validate = () => {
+    if (!content.email || !content.fname || !content.password || !content.password2) setIsFormValid(false);
+    else setIsFormValid(true);
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
-    console.log(content);
-    axios.post('http://localhost:8080'+'/users/register',content
-    )
+    content.name=content.fname+' '+content.lname;
+    axios.post('http://localhost:8080'+'/users/register',content)
     .then(response => {
-      console.log(response);
+      if (response.status == 200){
+        const cookies = new Cookies();
+        cookies.set('auth', response.data.token, { path: '/' });
+        router.push('/')
+      } 
     })
+    .catch(error => console.log(error.response.data.errors));
   }
   
   return (
@@ -112,7 +121,7 @@ export default function SignInSide() {
           <Typography component="h1" variant="h5">
             Register
           </Typography>
-          <form className={classes.form} noValidate onSubmit={handleSubmit}>
+          <form className={classes.form} onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={12}>
               <TextField
@@ -126,20 +135,14 @@ export default function SignInSide() {
                 name="email"
                 autoComplete="email"
                 autoFocus
-              />
-              </Grid>
-              <Grid item xs={12} sm={12}>
-              <TextField
-                onChange={setUsername}
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                name="username"
-                label="Username"
-                type="username"
-                id="username"
-                autoComplete="username"
+                error={
+                  !content.email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) ||
+                  content.email==''
+                }
+                helperText={
+                  content.email==''?'email cannot be blank':
+                  !content.email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)?'not an email bro':''
+                }
               />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -153,6 +156,12 @@ export default function SignInSide() {
                 id="firstName"
                 label="First Name"
                 autoFocus
+                error={
+                  content.fname==''
+                }
+                helperText={
+                  content.fname==''?'first name cannot be blank':''
+                }
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -178,7 +187,7 @@ export default function SignInSide() {
                 type={showPassword ? "text" : "password"}
                 id="password"
                 autoComplete="current-password"
-                InputProps={{ // <-- This is where the toggle button is added.
+                InputProps={{ 
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
@@ -191,11 +200,19 @@ export default function SignInSide() {
                     </InputAdornment>
                   )
                 }}
+                error={
+                  content.password.length<8 ||
+                  content.password!==content.password2
+                }
+                helperText={
+                  content.password.length<8?'password too short':
+                  content.password!==content.password2?'passwords don\'t match':''
+                }
               />
               </Grid>
               <Grid item xs={12} sm={12}>
               <TextField
-                onChange={setPassword}
+                onChange={setCPassword}
                 variant="outlined"
                 margin="normal"
                 required
@@ -218,6 +235,10 @@ export default function SignInSide() {
                     </InputAdornment>
                   )
                 }}
+                error={
+                  content.password2.length<8 ||
+                  content.password!==content.password2
+                }
               />
               </Grid>
             <FormControlLabel
@@ -230,6 +251,7 @@ export default function SignInSide() {
               variant="contained"
               color="primary"
               className={classes.submit}
+              disabled={!isFormValid}
             >
               Sign In
             </Button>
