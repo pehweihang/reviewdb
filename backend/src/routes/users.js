@@ -103,6 +103,9 @@ router.get('/logout', (req, res)=>{
             blacklist = new BlacklistJWT({
                 token: token,
             })
+            blacklist.save().then((out)=>{
+                return res.status(200).end();
+            })
         }catch{
             return res.status(400).json(["Invalid token"])
         }

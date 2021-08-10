@@ -1,9 +1,13 @@
 const jwt = require("jsonwebtoken");
+const BlacklistJWT = require("../models/userjwtblacklist")
 
-const verifyToken = (req, res, next)=>{
+const verifyToken = async (req, res, next)=>{
     const token = req.cookies.auth;
+    const blacklist = await BlacklistJWT.findOne({token:token});
+    console.log(blacklist)
     if (token){
         try{
+            if (blacklist) throw {name : "BlacklistedTokenError", message : "Token no longer valid"};
             const decoded = jwt.verify(token, process.env.JWT_TOKEN);
             console.log(decoded);
             res.locals.user_id = decoded.user_id;
