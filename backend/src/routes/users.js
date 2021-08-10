@@ -23,7 +23,7 @@ router.post('/register', async (req, res)=>{
     console.log(' Email:' + email + ' Name:' + name + 'Password' + password);
     if (!(name && email && password && password2)){
         errors.push("Fields cannot be empty.");
-        return res.json({success: "failed", errors: errors})
+        return res.status(400).json({errors: errors})
     }
 
     if (password.length < 8|| password2.length < 8){
