@@ -166,7 +166,7 @@ export default function Home() {
               </Grid>
             )):
             <Grid item align='center' style={{flex:1}}>
-              <Typography >No webtoons found!</Typography>
+              <Typography color='secondary' variant='h4'>No webtoons found!</Typography>
             </Grid>}
           </Grid>
         </Container>
