@@ -6,6 +6,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Link from '@material-ui/core/Link';
 import StarsIcon from '@material-ui/icons/Stars';
+import SearchIcon from '@material-ui/icons/Search';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/styles';
 
 function Copyright() {
@@ -57,6 +58,12 @@ const useStyles = makeStyles((theme) => ({
     color:'white',
     borderRadius:20
   },
+  searchBar: {
+    [`& fieldset`]:{borderRadius:30},
+  },
+  searchInput: {
+    marginLeft: 200,
+  },
 }));
 
 const cards = [
@@ -70,8 +77,6 @@ const cards = [
 
 export default function Home() {
   const classes = useStyles();
-
-  const [search, setSearch] = useState('');
   const [filteredDataSource, setFilteredDataSource] = useState(cards);
   const [masterDataSource, setMasterDataSource] = useState(cards);
  
@@ -117,12 +122,16 @@ export default function Home() {
             <div className={classes.heroButtons}>
               <Grid container spacing={2} justifyContent="center">
                 <Grid item>
-                  <TextField onChange={searchFilterFunction}/>
-                </Grid>
-                <Grid item>
-                  <Button variant="outlined" color="primary">
-                    Secondary action
-                  </Button>
+                <div style={{position: 'relative'}}> 
+                  <TextField 
+                  className={classes.searchBar}
+                  placeholder="Search by title"
+                  inputProps={{style:{paddingLeft:10}}}
+                  InputProps={{ disableUnderline: true,startAdornment: <SearchIcon/>}}
+                  variant='outlined'
+                  onChange={searchFilterFunction}
+                  />
+                </div>
                 </Grid>
               </Grid>
             </div>
@@ -131,7 +140,7 @@ export default function Home() {
         <Container className={classes.cardGrid} maxWidth="md">
           {/* End hero unit */}
           <Grid container spacing={4}>
-            {filteredDataSource.map((card,index) => (
+            {filteredDataSource.length>0? filteredDataSource.map((card,index) => (
               <Grid item key={index} xs={12} sm={6} md={4}>
                 <Card className={classes.card}>
                   <CardMedia
@@ -155,7 +164,10 @@ export default function Home() {
                   </CardActions>
                 </Card>
               </Grid>
-            ))}
+            )):
+            <Grid item align='center' style={{flex:1}}>
+              <Typography >No webtoons found!</Typography>
+            </Grid>}
           </Grid>
         </Container>
       </main>
