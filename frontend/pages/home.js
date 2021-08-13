@@ -87,10 +87,8 @@ export default function Home() {
         return itemData.indexOf(textData) > -1;
       });
       setFilteredDataSource(newData);
-      setSearch(text);
       } else {
       setFilteredDataSource(masterDataSource);
-      setSearch(text);
       }
   };
 
