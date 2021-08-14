@@ -127,7 +127,7 @@ export default function Home() {
                   className={classes.searchBar}
                   placeholder="Search by title"
                   inputProps={{style:{paddingLeft:10}}}
-                  InputProps={{ disableUnderline: true,startAdornment: <SearchIcon/>}}
+                  InputProps={{ disableunderline: true,startAdornment: <SearchIcon/>}}
                   variant='outlined'
                   onChange={searchFilterFunction}
                   />
