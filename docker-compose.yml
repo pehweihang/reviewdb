@@ -2,18 +2,18 @@ version: '3.7'
 
 services:
   api:
-    image: reviewdb-backend
-    container_name: reviewdb-backend
-    build: ./backend
-    command: sh -c "npm run dev"
+    image: reviewdb-api
+    container_name: reviewdb-api
+    build: ./server
+    command: sh -c "yarn start"
     volumes:
-      - ./backend/:/usr/src/app/
+      - ./server/:/usr/src/app
     ports:
       - 8080:8080
     env_file:
       - ./.env.dev
     depends_on:
-      - mongo
+      - postgres
 
   frontend:
     image: reviewdb-frontend
@@ -27,24 +27,12 @@ services:
     env_file:
       - ./.env.dev.client
 
-  mongo:
-    image: mongo
-    container_name: reviewdb_db
+  postgres:
+    image: postgres
+    container_name: reviewdb-postgres
     restart: always
     ports:
-      - 27017:27017
+      - 5432:5432
     env_file:
       - ./.env.dev.db
-
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8081:8081
-    env_file:
-      - ./.env.dev.db
-    depends_on:
-      - mongo
-    
- 
 
