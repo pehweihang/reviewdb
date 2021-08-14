@@ -5,7 +5,7 @@ const User = require('../models/user')
 
 
 router.get('/', auth, async (req, res)=>{
-    res.render('welcome!')
+    res.send('welcome!')
 })
 
 router.post("/welcome", auth, async (req, res)=>{
