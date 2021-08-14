@@ -4,8 +4,8 @@ const auth = require("../middleware/auth")
 const User = require('../models/user')
 
 
-router.get('/', (req, res)=>{
-    res.render('welcome')
+router.get('/', auth, async (req, res)=>{
+    res.render('welcome!')
 })
 
 router.post("/welcome", auth, async (req, res)=>{
