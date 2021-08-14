@@ -9,7 +9,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import Cookies from 'universal-cookie';
-
+import { useRouter } from 'next/router'
 const axios = require('axios');
 
 const useStyles = makeStyles((theme) => ({
@@ -68,6 +68,8 @@ export default function SignInSide() {
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = () => setShowPassword(!showPassword);
 
+  const router = useRouter();
+
   function handleSubmit(e) {
     e.preventDefault();
     console.log(content);
@@ -75,10 +77,13 @@ export default function SignInSide() {
     )
     .then(response => {
       if (response.status == 200){
+        console.log("success")
         const cookies = new Cookies();
         cookies.set('auth', response.data.token, { path: '/' });
+        router.push('/');
       }
     })
+    .catch(error => console.log(error));
   }
   
   return (

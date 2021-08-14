@@ -6,6 +6,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Link from '@material-ui/core/Link';
 import StarsIcon from '@material-ui/icons/Stars';
+import StarIcon from '@material-ui/icons/Star';
+import StarBorderIcon from '@material-ui/icons/StarBorder';
+import StarHalfIcon from '@material-ui/icons/StarHalf';
 import SearchIcon from '@material-ui/icons/Search';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/styles';
 
@@ -61,18 +64,15 @@ const useStyles = makeStyles((theme) => ({
   searchBar: {
     [`& fieldset`]:{borderRadius:30},
   },
-  searchInput: {
-    marginLeft: 200,
-  },
 }));
 
 const cards = [
-  {title:'Tower of God',image:'tog.jpg',desc:'Some nigga called Bam'},
-  {title:'Jujutsu Kaisen',image:'jjk.jpg',desc:'High school kid gets posessed'},
-  {title:'Demon Slayer',image:'ds.png',desc:'Wholesome story about a boy and his chibi sister'},
-  {title:'The Beginning After the End',image:'beginning.jpg',desc:'King -> kid'},
-  {title:'Sololeveling',image:'sololeveling.jpg',desc:'Man vs God'},
-  {title:'Tomb Raider King',image:'tombraiderking.jpg',desc:'Man goes back in time for revenge on the world'},
+  {title:'Tower of God',image:'tog.jpg',desc:'Some nigga called Bam',rating:4.2},
+  {title:'Jujutsu Kaisen',image:'jjk.jpg',desc:'High school kid gets posessed',rating:4.5},
+  {title:'Demon Slayer',image:'ds.png',desc:'Wholesome story about a boy and his chibi sister',rating:4.3},
+  {title:'The Beginning After the End',image:'beginning.jpg',desc:'King -> kid',rating:4},
+  {title:'Sololeveling',image:'sololeveling.jpg',desc:'Man vs God',rating:4.6},
+  {title:'Tomb Raider King',image:'tombraiderking.jpg',desc:'Man goes back in time for revenge on the world',rating:3},
 ];
 
 export default function Home() {
@@ -117,7 +117,7 @@ export default function Home() {
               Welcome to ReviewDB
             </Typography>
             <Typography variant="h5" align="center" color="textSecondary" paragraph>
-              Rate your favourite webtoons below!
+              Rate your favourite anime, manga and webtoons below!
             </Typography>
             <div className={classes.heroButtons}>
               <Grid container spacing={2} justifyContent="center">
@@ -153,6 +153,9 @@ export default function Home() {
                     <Typography gutterBottom variant="h5" component="h2">
                       {card.title}
                     </Typography>
+                    {
+                       <StarIcon/>
+                    }
                     <Typography>
                       {card.desc}
                     </Typography>
