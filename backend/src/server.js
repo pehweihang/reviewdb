@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 
 
 //Routes
-app.use(cors());
+app.use(cors({credentials: true, origin: true}));
 app.use(cookieParser())
 app.use(express.json())
 app.use('/',require('./routes/index'));
