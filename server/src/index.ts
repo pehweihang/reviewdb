@@ -17,6 +17,7 @@ import { createConnection } from "typeorm";
     schema: await buildSchema({
       resolvers: [UserResolver],
     }),
+    context: ({ req, res }) => ({ req, res }),
   });
   await apolloserver.start();
   apolloserver.applyMiddleware({ app });
