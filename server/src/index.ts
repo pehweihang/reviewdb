@@ -2,13 +2,26 @@ import "reflect-metadata";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
-import { UserResolver } from "./resovlers";
+import { UserResolver } from "./UserResolver";
 import { createConnection } from "typeorm";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 
 (async () => {
   const app = express();
+  app.use(
+    cors({
+      credentials: true,
+      origin: true,
+    })
+  );
+  app.use(cookieParser());
   app.get("/", (_, res) => {
     res.send("hi");
+  });
+  app.post("/auth/cookie_refresh", (req, res) => {
+    const token = req.cookies.oid;
+    return;
   });
 
   await createConnection();
