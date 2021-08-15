@@ -10,9 +10,10 @@ import {
 } from "type-graphql";
 import { ExpressContext } from "./ExpressContext";
 import { User } from "./entity/User";
-import { createAccessToken, createRefreshToken } from "./createTokens";
+import { createAccessToken, sendRefreshToken } from "./token";
 import { compare, hash } from "bcryptjs";
 import { isAuth } from "./auth";
+import { InvalidToken } from "./entity/InvalidToken";
 
 @ObjectType()
 class LoginResponse {
@@ -70,7 +71,7 @@ export class UserResolver {
     }
 
     const user = await User.findOne({ email });
-    res.cookie("oid", createRefreshToken(user!));
+    sendRefreshToken(user!, res);
     return { accessToken: createAccessToken(user!) };
   }
 
@@ -90,7 +91,21 @@ export class UserResolver {
       throw new Error("Wrong email or password");
     }
 
-    res.cookie("oid", createRefreshToken(user!));
+    sendRefreshToken(user!, res);
     return { accessToken: createAccessToken(user!) };
+  }
+
+  @Mutation(() => LoginResponse)
+  async logout(@Ctx() { req, res }: ExpressContext): Promise<LoginResponse> {
+    const token = req.cookies.oid;
+    if (!token) {
+      res.cookie("oid", "");
+      return { accessToken: "" };
+    }
+    try {
+      await InvalidToken.insert({ token: token });
+    } catch {}
+    res.cookie("oid", "");
+    return { accessToken: "" };
   }
 }

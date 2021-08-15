@@ -6,6 +6,10 @@ import { UserResolver } from "./UserResolver";
 import { createConnection } from "typeorm";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { InvalidToken } from "./entity/InvalidToken";
+import { sendRefreshToken } from "./token";
+import { User } from "./entity/User";
+import { verify } from "jsonwebtoken";
 
 (async () => {
   const app = express();
@@ -19,9 +23,25 @@ import cors from "cors";
   app.get("/", (_, res) => {
     res.send("hi");
   });
-  app.post("/auth/cookie_refresh", (req, res) => {
+  app.post("/auth/token_refresh", async (req, res) => {
     const token = req.cookies.oid;
-    return;
+    if (!token) {
+      return res.status(401).send("Invalid Token.");
+    }
+    const blacklisted = await InvalidToken.findOne({ token });
+    if (blacklisted) {
+      return res.status(401).send("Invalid Token.");
+    }
+    try {
+      const payload = verify(token, process.env.JWT_REFRESH_SECRET!) as any;
+      const user = await User.findOne({ id: payload.uid });
+      await InvalidToken.insert({ token: token });
+      sendRefreshToken(user!, res);
+      return res.status(200).end();
+    } catch (err) {
+      console.log(err);
+      return res.status(401).send("Invalid Token.");
+    }
   });
 
   await createConnection();
