@@ -2,7 +2,7 @@ import "reflect-metadata";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
-import { UserResolver } from "./UserResolver";
+import { UserResolver } from "./resolvers/UserResolver";
 import { createConnection } from "typeorm";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -10,6 +10,7 @@ import { InvalidToken } from "./entity/InvalidToken";
 import { sendRefreshToken } from "./token";
 import { User } from "./entity/User";
 import { verify } from "jsonwebtoken";
+import { SearchResolver } from "./resolvers/SearchResolver";
 
 (async () => {
   const app = express();
@@ -48,7 +49,7 @@ import { verify } from "jsonwebtoken";
 
   const apolloserver = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver],
+      resolvers: [UserResolver, SearchResolver],
     }),
     context: ({ req, res }) => ({ req, res }),
   });
