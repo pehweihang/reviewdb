@@ -8,12 +8,12 @@ import {
   Ctx,
   UseMiddleware,
 } from "type-graphql";
-import { ExpressContext } from "./ExpressContext";
-import { User } from "./entity/User";
-import { createAccessToken, sendRefreshToken } from "./token";
+import { ExpressContext } from "../ExpressContext";
+import { User } from "../entity/User";
+import { createAccessToken, sendRefreshToken } from "../token";
 import { compare, hash } from "bcryptjs";
-import { isAuth } from "./auth";
-import { InvalidToken } from "./entity/InvalidToken";
+import { isAuth } from "../auth";
+import { InvalidToken } from "../entity/InvalidToken";
 
 @ObjectType()
 class LoginResponse {
