@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  OneToOne,
+} from "typeorm";
+import { Group } from "./Group";
 
 @Entity()
 export class User extends BaseEntity {
@@ -16,9 +23,6 @@ export class User extends BaseEntity {
   @Column()
   name: string;
 
-  @Column({
-    type: "text",
-    nullable: true,
-  })
-  group: number | null;
+  @OneToOne(() => Group, (group) => group.id, { onDelete: "SET NULL" })
+  group: string;
 }
