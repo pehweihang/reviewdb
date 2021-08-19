@@ -11,6 +11,7 @@ import { sendRefreshToken } from "./token";
 import { User } from "./entity/User";
 import { verify } from "jsonwebtoken";
 import { SearchResolver } from "./resolvers/SearchResolver";
+import { GroupResolver } from "./resolvers/GroupResolver";
 
 (async () => {
   const app = express();
@@ -49,7 +50,7 @@ import { SearchResolver } from "./resolvers/SearchResolver";
 
   const apolloserver = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver, SearchResolver],
+      resolvers: [UserResolver, SearchResolver, GroupResolver],
     }),
     context: ({ req, res }) => ({ req, res }),
   });

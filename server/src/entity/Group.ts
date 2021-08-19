@@ -2,8 +2,8 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
-  ManyToOne,
   BaseEntity,
+  OneToMany,
 } from "typeorm";
 import { User } from "./User";
 
@@ -15,6 +15,8 @@ export class Group extends BaseEntity {
   @Column()
   name: string;
 
-  @ManyToOne(() => User, (user) => user.id, { onDelete: "CASCADE" })
+  @OneToMany(() => User, (user) => user.id, {
+    onDelete: "SET NULL",
+  })
   users: User[];
 }
