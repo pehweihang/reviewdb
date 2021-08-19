@@ -3,7 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   BaseEntity,
-  OneToOne,
+  ManyToOne,
 } from "typeorm";
 import { Group } from "./Group";
 
@@ -23,6 +23,6 @@ export class User extends BaseEntity {
   @Column()
   name: string;
 
-  @OneToOne(() => Group, (group) => group.id, { onDelete: "SET NULL" })
-  group: string;
+  @ManyToOne(() => Group, (group) => group.id, { cascade: true })
+  group: Group;
 }
