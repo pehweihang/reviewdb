@@ -40,5 +40,13 @@ services:
     env_file:
       - ./.env.dev.db
 
+  pgadmin:
+    container_name: reviewdb-pgadmin
+    image: dpage/pgadmin4
+    env_file: 
+      - ./.env.dev.pgadmin
+    ports:
+      - 5050:80
+
 volumes:
  reviewdb-postgres:
