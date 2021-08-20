@@ -21,6 +21,6 @@ export class Group extends BaseEntity {
   })
   users: User[];
 
-  @OneToMany(()=>Review, review=>review.group, {onDelete:"CASCADE"})
-  reviews: Review
+  @OneToMany(() => Review, (review) => review.group, { onDelete: "CASCADE" })
+  reviews: Review;
 }

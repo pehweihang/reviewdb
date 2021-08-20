@@ -14,13 +14,13 @@ export class Review extends BaseEntity {
   id: number;
 
   @Column()
-  contentId: number
+  contentId: number;
 
   @Column()
-  contentName: string
+  contentName: string;
 
   @Column()
-  imageUrl: string
+  imageUrl: string;
 
   @Column({
     type: "float4",
@@ -31,7 +31,7 @@ export class Review extends BaseEntity {
   reviewText: string;
 
   @ManyToOne(() => User, (user) => user.reviews, {
-    onDelete:"CASCADE"
+    onDelete: "CASCADE",
   })
   user: User;
 
