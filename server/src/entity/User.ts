@@ -28,6 +28,9 @@ export class User extends BaseEntity {
   @ManyToOne(() => Group, (group) => group.users, { cascade: true })
   group: Group;
 
-  @OneToMany(()=>Review, review=>review.user, {cascade:true, onDelete:"CASCADE"})
-  reviews: Review
+  @OneToMany(() => Review, (review) => review.user, {
+    cascade: true,
+    onDelete: "CASCADE",
+  })
+  reviews: Review;
 }
