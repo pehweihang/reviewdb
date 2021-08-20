@@ -81,7 +81,7 @@ export class UserResolver {
     @Arg("email") email: string,
     @Arg("password") password: string
   ): Promise<LoginResponse> {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }, { relations: ["group"] });
     if (!user) {
       throw new Error("Wrong email or password");
     }

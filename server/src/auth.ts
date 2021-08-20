@@ -6,6 +6,7 @@ interface Payload {
   uid: number;
   email: string;
   name: string;
+  group: string;
 }
 
 export const isAuth: MiddlewareFn<ExpressContext> = ({ context }, next) => {
