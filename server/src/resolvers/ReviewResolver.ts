@@ -1,11 +1,58 @@
 import { Review } from "../entity/Reviews";
 import { User } from "../entity/User";
 import { ExpressContext } from "../ExpressContext";
-import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from "type-graphql";
+import {
+  Arg,
+  Ctx,
+  Field,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+  UseMiddleware,
+} from "type-graphql";
 import { isAuth } from "../auth";
+
+@ObjectType()
+class ReviewResponse {
+  @Field()
+  contentId: number;
+
+  @Field()
+  contentName: string;
+
+  @Field()
+  imageUrl: string;
+
+  @Field()
+  rating: number;
+
+  @Field()
+  reviewText: string;
+}
 
 @Resolver()
 export class ReviewResolver {
+  @Query(() => [ReviewResponse])
+  @UseMiddleware(isAuth)
+  async getReviewsGroup(
+    @Ctx() { payload }: ExpressContext
+  ): Promise<[ReviewResponse]> {
+    const reviews = await Review.find({ where: { group: payload!.group } });
+    console.log(reviews);
+    return reviews as any;
+  }
+
+  @Query(() => [ReviewResponse])
+  @UseMiddleware(isAuth)
+  async getReiewsUser(
+    @Ctx() { payload }: ExpressContext
+  ): Promise<[ReviewResponse]> {
+    const reviews = await Review.find({ where: { user: payload!.uid } });
+    console.log(reviews);
+    return reviews as any;
+  }
+
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
   async addReview(
@@ -40,7 +87,7 @@ export class ReviewResolver {
 
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
-  async deleteReview(@Arg("reviewId") reviewId: number) {
+  async deleteReview(@Arg("reviewId") reviewId: number): Promise<Boolean> {
     await Review.delete(reviewId);
     return true;
   }
