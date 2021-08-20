@@ -4,8 +4,10 @@ import {
   Column,
   BaseEntity,
   ManyToOne,
+  OneToMany,
 } from "typeorm";
 import { Group } from "./Group";
+import { Review } from "./Reviews";
 
 @Entity()
 export class User extends BaseEntity {
@@ -23,6 +25,9 @@ export class User extends BaseEntity {
   @Column()
   name: string;
 
-  @ManyToOne(() => Group, (group) => group.id, { cascade: true })
+  @ManyToOne(() => Group, (group) => group.users, { cascade: true })
   group: Group;
+
+  @OneToMany(()=>Review, review=>review.user, {cascade:true, onDelete:"CASCADE"})
+  reviews: Review
 }

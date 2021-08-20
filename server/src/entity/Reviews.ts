@@ -4,7 +4,6 @@ import {
   Column,
   BaseEntity,
   ManyToOne,
-  OneToOne,
 } from "typeorm";
 import { Group } from "./Group";
 import { User } from "./User";
@@ -15,19 +14,27 @@ export class Review extends BaseEntity {
   id: number;
 
   @Column()
-  user_id: number;
+  contentId: number
 
   @Column()
+  contentName: string
+
+  @Column()
+  imageUrl: string
+
+  @Column({
+    type: "float4",
+  })
   rating: number;
 
   @Column()
   reviewText: string;
 
-  @ManyToOne(() => User, (user) => user.id, {
-    cascade: true,
+  @ManyToOne(() => User, (user) => user.reviews, {
+    onDelete:"CASCADE"
   })
   user: User;
 
-  @OneToOne(() => Group, (group) => group.id, { onDelete: "CASCADE" })
-  group_id: number;
+  @ManyToOne(() => Group, (group) => group.reviews, { onDelete: "CASCADE" })
+  group: Group;
 }

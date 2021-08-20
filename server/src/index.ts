@@ -12,6 +12,7 @@ import { User } from "./entity/User";
 import { verify } from "jsonwebtoken";
 import { SearchResolver } from "./resolvers/SearchResolver";
 import { GroupResolver } from "./resolvers/GroupResolver";
+import { ReviewResolver } from "./resolvers/ReviewResolver";
 
 (async () => {
   const app = express();
@@ -50,7 +51,7 @@ import { GroupResolver } from "./resolvers/GroupResolver";
 
   const apolloserver = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver, SearchResolver, GroupResolver],
+      resolvers: [UserResolver, SearchResolver, GroupResolver, ReviewResolver],
     }),
     context: ({ req, res }) => ({ req, res }),
   });
