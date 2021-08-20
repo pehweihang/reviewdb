@@ -24,6 +24,10 @@ export class GroupResolver {
       user.group = group;
       await user.save();
 
+      group.users = [user]
+      group.save()
+      console.log(user);
+
       return true;
     } else {
       throw new Error("User not found");
