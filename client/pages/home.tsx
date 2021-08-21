@@ -26,8 +26,11 @@ function Copyright() {
 }
 
 const useStyles = makeStyles((theme) => ({
-  icon: {
+  logo: {
     marginRight: theme.spacing(2),
+  },
+  icon: {
+    color: '#eb3461',
   },
   heroContent: {
     backgroundColor: theme.palette.background.paper,
@@ -97,13 +100,22 @@ export default function Home() {
       }
   };
 
+  const ratingRender = (rating: number) => {
+    let ratingarr=[];
+    for (let i=1;i<=5;i++){
+      if (i<=Math.floor(rating)) ratingarr.push(<StarIcon className={classes.icon}/>)
+      else if (i-rating<1) ratingarr.push(<StarHalfIcon className={classes.icon}/>)
+      else ratingarr.push(<StarBorderIcon className={classes.icon}/>)
+    }
+    return ratingarr;
+  }
 
   return (
     <React.Fragment>
       <CssBaseline />
       <AppBar position="relative">
         <Toolbar>
-          <StarsIcon className={classes.icon} />
+          <StarsIcon className={classes.logo} />
           <Typography variant="h6" color="inherit" noWrap>
             WeebCritic
           </Typography>
@@ -122,13 +134,12 @@ export default function Home() {
             <div className={classes.heroButtons}>
               <Grid container spacing={2} justifyContent="center">
                 <Grid item>
-                <div style={{position: 'relative'}}> 
+                <div style={{position: 'relative',border: '1px solid black',borderRadius: 20,padding: 5}}> 
                   <TextField 
                   className={classes.searchBar}
                   placeholder="Search by title"
                   inputProps={{style:{paddingLeft:10}}}
-                  InputProps={{ startAdornment: <SearchIcon/>}}
-                  
+                  InputProps={{ disableUnderline:true,startAdornment: <SearchIcon/>}}
                   onChange={searchFilterFunction}
                   />
                 </div>
@@ -153,9 +164,10 @@ export default function Home() {
                     <Typography gutterBottom variant="h5" component="h2">
                       {card.title}
                     </Typography>
-                    {
-                       <StarIcon/>
-                    }
+                    <div style={{flexDirection:'row',display:'flex',paddingTop:3,paddingBottom:3}}>
+                    {ratingRender(card.rating)}
+                    <Typography style={{paddingLeft:10,marginTop:2}}>{card.rating}</Typography>
+                    </div>
                     <Typography>
                       {card.desc}
                     </Typography>
