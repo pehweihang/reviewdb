@@ -17,7 +17,7 @@ export default function Index() {
 
 
   const authenticate = async () => {
-    await axios.get('http://localhost:8080'+'/',{withCredentials: true})
+    await axios.get('http://localhost:8080/',{withCredentials: true})
     .then(response => {
       console.log(response.status)
       if (response.status == 200) {

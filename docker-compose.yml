@@ -15,13 +15,13 @@ services:
     depends_on:
       - postgres
 
-  frontend:
-    image: reviewdb-frontend
-    container_name: reviewdb-frontend
-    build: ./frontend
+  client:
+    image: reviewdb-client
+    container_name: reviewdb-client
+    build: ./client
     command: sh -c "npm run dev"
     volumes:
-      - ./frontend/:/usr/src/app/
+      - ./client/:/usr/src/app/
     ports:
       - 3000:3000
     env_file:

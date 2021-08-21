@@ -10,7 +10,7 @@ import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import StarHalfIcon from '@material-ui/icons/StarHalf';
 import SearchIcon from '@material-ui/icons/Search';
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/styles';
+// import { MuiThemeProvider, createMuiTheme } from '@material-ui/styles';
 
 function Copyright() {
   return (
@@ -80,7 +80,7 @@ export default function Home() {
   const [filteredDataSource, setFilteredDataSource] = useState(cards);
   const [masterDataSource, setMasterDataSource] = useState(cards);
  
-  const searchFilterFunction = (e) => {
+  const searchFilterFunction = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log("change")
     let text=e.target.value;
     if (text) {
@@ -105,7 +105,7 @@ export default function Home() {
         <Toolbar>
           <StarsIcon className={classes.icon} />
           <Typography variant="h6" color="inherit" noWrap>
-            ReviewDB
+            WeebCritic
           </Typography>
         </Toolbar>
       </AppBar>
@@ -114,7 +114,7 @@ export default function Home() {
         <div className={classes.heroContent}>
           <Container maxWidth="sm">
             <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
-              Welcome to ReviewDB
+              Welcome to WeebCritic
             </Typography>
             <Typography variant="h5" align="center" color="textSecondary" paragraph>
               Rate your favourite anime, manga and webtoons below!
@@ -127,8 +127,8 @@ export default function Home() {
                   className={classes.searchBar}
                   placeholder="Search by title"
                   inputProps={{style:{paddingLeft:10}}}
-                  InputProps={{ disableunderline: true,startAdornment: <SearchIcon/>}}
-                  variant='outlined'
+                  InputProps={{ startAdornment: <SearchIcon/>}}
+                  
                   onChange={searchFilterFunction}
                   />
                 </div>
@@ -166,9 +166,9 @@ export default function Home() {
                     </Button>
                   </CardActions>
                 </Card>
-              </Grid>
+              </Grid> 
             )):
-            <Grid item align='center' style={{flex:1}}>
+            <Grid item style={{flex:1}}>
               <Typography color='secondary' variant='h4'>No webtoons found!</Typography>
             </Grid>}
           </Grid>
