@@ -1,5 +1,5 @@
 import React,{useEffect,useState} from 'react'
-import { setAccessToken } from '../components/accessToken';
+import { getAccessToken, setAccessToken } from '../components/accessToken';
 import { useByeQuery } from '../generated/graphql';
 import Home from './home'
 import LoginRegister from './loginregister'
@@ -9,6 +9,7 @@ const Index:React.FC = () => {
   const [Loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("effect")
     fetch("http://localhost:8080/auth/token_refresh", {
       method: "POST",
       credentials: "include"
@@ -18,30 +19,14 @@ const Index:React.FC = () => {
       setLoading(false);
     });
   }, []);
-
   if (!Loading){
-    const { data, loading, error } = useByeQuery({
-      fetchPolicy: "network-only"
-    });
-
-      if (loading) {
-        return <div>loading...</div>;
-      }
-
-      if (error) {
-        console.log(error);
-        return <LoginRegister/>;
-      }
-
-      if (!data) {
-        return <div>no data</div>;
-      }
+  if (getAccessToken()){
+    
 
       return <Home/>;
-    }
-  else {
-    return <div>something else...</div>
+  }else return <LoginRegister/>
   }
+  return <div>hi</div>
 }
 
 export default Index;
