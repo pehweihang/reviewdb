@@ -15,6 +15,7 @@ export const isAuth: MiddlewareFn<MyContext> = ({ context }, next) => {
     throw new Error("Not authorized");
   }
   try {
+    console.log(auth)
     const token = auth.split(" ")[1];
     const payload = verify(token, process.env.JWT_ACCESS_SECRET!);
     context.payload = payload as Payload;

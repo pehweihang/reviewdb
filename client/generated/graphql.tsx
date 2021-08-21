@@ -25,6 +25,10 @@ export type Mutation = {
   register: LoginResponse;
   login: LoginResponse;
   logout: LoginResponse;
+  createGroup: Scalars['Boolean'];
+  joinGroup: Scalars['Boolean'];
+  addReview: Scalars['Boolean'];
+  deleteReview: Scalars['Boolean'];
 };
 
 
@@ -41,11 +45,37 @@ export type MutationLoginArgs = {
   email: Scalars['String'];
 };
 
+
+export type MutationCreateGroupArgs = {
+  groupName: Scalars['String'];
+};
+
+
+export type MutationJoinGroupArgs = {
+  groupUuid: Scalars['String'];
+};
+
+
+export type MutationAddReviewArgs = {
+  rating: Scalars['Float'];
+  reviewText: Scalars['String'];
+  imageUrl: Scalars['String'];
+  contentName: Scalars['String'];
+  contentId: Scalars['Float'];
+};
+
+
+export type MutationDeleteReviewArgs = {
+  reviewId: Scalars['Float'];
+};
+
 export type Query = {
   __typename?: 'Query';
   hello: Scalars['String'];
   bye: Scalars['String'];
   malSearch: Array<SearchResponse>;
+  getReviewsGroup: Array<ReviewResponse>;
+  getReiewsUser: Array<ReviewResponse>;
 };
 
 
@@ -54,12 +84,26 @@ export type QueryMalSearchArgs = {
   q: Scalars['String'];
 };
 
+export type ReviewResponse = {
+  __typename?: 'ReviewResponse';
+  contentId: Scalars['Float'];
+  contentName: Scalars['String'];
+  imageUrl: Scalars['String'];
+  rating: Scalars['Float'];
+  reviewText: Scalars['String'];
+};
+
 export type SearchResponse = {
   __typename?: 'SearchResponse';
   url: Scalars['String'];
   image_url: Scalars['String'];
   title: Scalars['String'];
 };
+
+export type ByeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ByeQuery = { __typename?: 'Query', bye: string };
 
 export type HelloQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -74,6 +118,11 @@ export type LoginMutationVariables = Exact<{
 
 export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'LoginResponse', accessToken: string } };
 
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = { __typename?: 'Mutation', logout: { __typename?: 'LoginResponse', accessToken: string } };
+
 export type RegisterMutationVariables = Exact<{
   registerName: Scalars['String'];
   registerPassword2: Scalars['String'];
@@ -85,6 +134,38 @@ export type RegisterMutationVariables = Exact<{
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'LoginResponse', accessToken: string } };
 
 
+export const ByeDocument = gql`
+    query bye {
+  bye
+}
+    `;
+
+/**
+ * __useByeQuery__
+ *
+ * To run a query within a React component, call `useByeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useByeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useByeQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useByeQuery(baseOptions?: Apollo.QueryHookOptions<ByeQuery, ByeQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ByeQuery, ByeQueryVariables>(ByeDocument, options);
+      }
+export function useByeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ByeQuery, ByeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ByeQuery, ByeQueryVariables>(ByeDocument, options);
+        }
+export type ByeQueryHookResult = ReturnType<typeof useByeQuery>;
+export type ByeLazyQueryHookResult = ReturnType<typeof useByeLazyQuery>;
+export type ByeQueryResult = Apollo.QueryResult<ByeQuery, ByeQueryVariables>;
 export const HelloDocument = gql`
     query hello {
   hello
@@ -151,6 +232,38 @@ export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginM
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
 export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
 export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout {
+    accessToken
+  }
+}
+    `;
+export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMutationVariables>;
+
+/**
+ * __useLogoutMutation__
+ *
+ * To run a mutation, you first call `useLogoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLogoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [logoutMutation, { data, loading, error }] = useLogoutMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLogoutMutation(baseOptions?: Apollo.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, options);
+      }
+export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
+export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
+export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
 export const RegisterDocument = gql`
     mutation Register($registerName: String!, $registerPassword2: String!, $registerPassword: String!, $registerEmail: String!) {
   register(name: $registerName, password2: $registerPassword2, password: $registerPassword, email: $registerEmail) {
