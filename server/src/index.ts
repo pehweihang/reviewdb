@@ -1,4 +1,4 @@
-import express from "express";
+gmport express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/UserResolver";
@@ -6,7 +6,7 @@ import { createConnection } from "typeorm";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { InvalidToken } from "./entity/InvalidToken";
-import { createAccessToken, sendRefreshToken } from "./token";
+import { sendRefreshToken } from "./token";
 import { User } from "./entity/User";
 import { verify } from "jsonwebtoken";
 import { SearchResolver } from "./resolvers/SearchResolver";
@@ -38,12 +38,8 @@ import { ReviewResolver } from "./resolvers/ReviewResolver";
       const payload = verify(token, process.env.JWT_REFRESH_SECRET!) as any;
       const user = await User.findOne({ id: payload.uid });
       await InvalidToken.insert({ token: token });
-      if (user) {
-        sendRefreshToken(user, res);
-        return res.send({ accessToken: createAccessToken(user) });
-      } else {
-        return res.status(401).send("User not found");
-      }
+      sendRefreshToken(user!, res);
+      return res.status(200).end();
     } catch (err) {
       console.log(err);
       return res.status(401).send("Invalid Token.");
@@ -59,7 +55,7 @@ import { ReviewResolver } from "./resolvers/ReviewResolver";
     context: ({ req, res }) => ({ req, res }),
   });
   await apolloserver.start();
-  apolloserver.applyMiddleware({ app, cors: false });
+  apolloserver.applyMiddleware({ app });
   app.listen(process.env.PORT || 8080, () => {
     console.log("express server started");
   });
