@@ -8,11 +8,11 @@ import {
   Ctx,
   UseMiddleware,
 } from "type-graphql";
-import { ExpressContext } from "../ExpressContext";
+import { MyContext } from "../types";
 import { User } from "../entity/User";
 import { createAccessToken, sendRefreshToken } from "../token";
 import { compare, hash } from "bcryptjs";
-import { isAuth } from "../auth";
+import { isAuth } from "../middleware/auth";
 import { InvalidToken } from "../entity/InvalidToken";
 
 @ObjectType()
@@ -30,13 +30,13 @@ export class UserResolver {
 
   @Query(() => String)
   @UseMiddleware(isAuth)
-  bye(@Ctx() { payload }: ExpressContext) {
+  bye(@Ctx() { payload }: MyContext) {
     return payload!.email;
   }
 
   @Mutation(() => LoginResponse)
   async register(
-    @Ctx() { res }: ExpressContext,
+    @Ctx() { res }: MyContext,
     @Arg("email") email: string,
     @Arg("password") password: string,
     @Arg("password2") password2: string,
@@ -77,7 +77,7 @@ export class UserResolver {
 
   @Mutation(() => LoginResponse)
   async login(
-    @Ctx() { res }: ExpressContext,
+    @Ctx() { res }: MyContext,
     @Arg("email") email: string,
     @Arg("password") password: string
   ): Promise<LoginResponse> {
@@ -96,7 +96,7 @@ export class UserResolver {
   }
 
   @Mutation(() => LoginResponse)
-  async logout(@Ctx() { req, res }: ExpressContext): Promise<LoginResponse> {
+  async logout(@Ctx() { req, res }: MyContext): Promise<LoginResponse> {
     const token = req.cookies.oid;
     if (!token) {
       res.cookie("oid", "");

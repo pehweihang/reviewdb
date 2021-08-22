@@ -1,6 +1,6 @@
 import { Review } from "../entity/Reviews";
 import { User } from "../entity/User";
-import { ExpressContext } from "../ExpressContext";
+import { MyContext } from "../types";
 import {
   Arg,
   Ctx,
@@ -11,7 +11,7 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
-import { isAuth } from "../auth";
+import { isAuth } from "../middleware/auth";
 
 @ObjectType()
 class ReviewResponse {
@@ -36,7 +36,7 @@ export class ReviewResolver {
   @Query(() => [ReviewResponse])
   @UseMiddleware(isAuth)
   async getReviewsGroup(
-    @Ctx() { payload }: ExpressContext
+    @Ctx() { payload }: MyContext
   ): Promise<[ReviewResponse]> {
     const reviews = await Review.find({ where: { group: payload!.group } });
     console.log(reviews);
@@ -46,7 +46,7 @@ export class ReviewResolver {
   @Query(() => [ReviewResponse])
   @UseMiddleware(isAuth)
   async getReiewsUser(
-    @Ctx() { payload }: ExpressContext
+    @Ctx() { payload }: MyContext
   ): Promise<[ReviewResponse]> {
     const reviews = await Review.find({ where: { user: payload!.uid } });
     console.log(reviews);
@@ -56,7 +56,7 @@ export class ReviewResolver {
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
   async addReview(
-    @Ctx() { payload }: ExpressContext,
+    @Ctx() { payload }: MyContext,
     @Arg("contentId") contentId: number,
     @Arg("contentName") contentName: string,
     @Arg("imageUrl") imageUrl: string,

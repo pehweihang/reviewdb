@@ -1,15 +1,15 @@
-import { isAuth } from "../auth";
+import { isAuth } from "../middleware/auth";
 import { Group } from "../entity/Group";
 import { User } from "../entity/User";
-import { ExpressContext } from "../ExpressContext";
 import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from "type-graphql";
+import { MyContext } from "src/types";
 
 @Resolver()
 export class GroupResolver {
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
   async createGroup(
-    @Ctx() { payload }: ExpressContext,
+    @Ctx() { payload }: MyContext,
     @Arg("groupName") groupName: string
   ): Promise<Boolean> {
     const user = await User.findOne({ id: payload!.uid });
@@ -24,8 +24,8 @@ export class GroupResolver {
       user.group = group;
       await user.save();
 
-      group.users = [user]
-      group.save()
+      group.users = [user];
+      group.save();
       console.log(user);
 
       return true;
@@ -37,7 +37,7 @@ export class GroupResolver {
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
   async joinGroup(
-    @Ctx() { payload }: ExpressContext,
+    @Ctx() { payload }: MyContext,
     @Arg("groupUuid") groupUuid: string
   ): Promise<Boolean> {
     const user = await User.findOne({ id: payload!.uid });
