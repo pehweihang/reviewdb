@@ -1,0 +1,3 @@
+mutation JoinGroup($joinGroupToken: String!) {
+  joinGroup(token: $joinGroupToken)
+}

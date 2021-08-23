@@ -25,6 +25,11 @@ export type Mutation = {
   register: LoginResponse;
   login: LoginResponse;
   logout: LoginResponse;
+  createGroup: Scalars['Boolean'];
+  joinGroup: Scalars['Boolean'];
+  getGroupLink: Scalars['String'];
+  addReview: Scalars['Boolean'];
+  deleteReview: Scalars['Boolean'];
 };
 
 
@@ -41,17 +46,52 @@ export type MutationLoginArgs = {
   email: Scalars['String'];
 };
 
+
+export type MutationCreateGroupArgs = {
+  groupName: Scalars['String'];
+};
+
+
+export type MutationJoinGroupArgs = {
+  token: Scalars['String'];
+};
+
+
+export type MutationAddReviewArgs = {
+  rating: Scalars['Float'];
+  reviewText: Scalars['String'];
+  imageUrl: Scalars['String'];
+  contentName: Scalars['String'];
+  contentId: Scalars['Float'];
+};
+
+
+export type MutationDeleteReviewArgs = {
+  reviewId: Scalars['Float'];
+};
+
 export type Query = {
   __typename?: 'Query';
   hello: Scalars['String'];
   bye: Scalars['String'];
   malSearch: Array<SearchResponse>;
+  getReviewsGroup: Array<ReviewResponse>;
+  getReiewsUser: Array<ReviewResponse>;
 };
 
 
 export type QueryMalSearchArgs = {
   type: Scalars['String'];
   q: Scalars['String'];
+};
+
+export type ReviewResponse = {
+  __typename?: 'ReviewResponse';
+  contentId: Scalars['Float'];
+  contentName: Scalars['String'];
+  imageUrl: Scalars['String'];
+  rating: Scalars['Float'];
+  reviewText: Scalars['String'];
 };
 
 export type SearchResponse = {
@@ -61,10 +101,32 @@ export type SearchResponse = {
   title: Scalars['String'];
 };
 
+export type ByeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ByeQuery = { __typename?: 'Query', bye: string };
+
+export type GetGroupLinkMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetGroupLinkMutation = { __typename?: 'Mutation', getGroupLink: string };
+
+export type GetReviewsGroupQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetReviewsGroupQuery = { __typename?: 'Query', getReviewsGroup: Array<{ __typename?: 'ReviewResponse', reviewText: string, contentId: number, contentName: string, imageUrl: string, rating: number }> };
+
 export type HelloQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type HelloQuery = { __typename?: 'Query', hello: string };
+
+export type JoinGroupMutationVariables = Exact<{
+  joinGroupToken: Scalars['String'];
+}>;
+
+
+export type JoinGroupMutation = { __typename?: 'Mutation', joinGroup: boolean };
 
 export type LoginMutationVariables = Exact<{
   loginPassword: Scalars['String'];
@@ -73,6 +135,11 @@ export type LoginMutationVariables = Exact<{
 
 
 export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'LoginResponse', accessToken: string } };
+
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = { __typename?: 'Mutation', logout: { __typename?: 'LoginResponse', accessToken: string } };
 
 export type RegisterMutationVariables = Exact<{
   registerName: Scalars['String'];
@@ -85,6 +152,106 @@ export type RegisterMutationVariables = Exact<{
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'LoginResponse', accessToken: string } };
 
 
+export const ByeDocument = gql`
+    query bye {
+  bye
+}
+    `;
+
+/**
+ * __useByeQuery__
+ *
+ * To run a query within a React component, call `useByeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useByeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useByeQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useByeQuery(baseOptions?: Apollo.QueryHookOptions<ByeQuery, ByeQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ByeQuery, ByeQueryVariables>(ByeDocument, options);
+      }
+export function useByeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ByeQuery, ByeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ByeQuery, ByeQueryVariables>(ByeDocument, options);
+        }
+export type ByeQueryHookResult = ReturnType<typeof useByeQuery>;
+export type ByeLazyQueryHookResult = ReturnType<typeof useByeLazyQuery>;
+export type ByeQueryResult = Apollo.QueryResult<ByeQuery, ByeQueryVariables>;
+export const GetGroupLinkDocument = gql`
+    mutation getGroupLink {
+  getGroupLink
+}
+    `;
+export type GetGroupLinkMutationFn = Apollo.MutationFunction<GetGroupLinkMutation, GetGroupLinkMutationVariables>;
+
+/**
+ * __useGetGroupLinkMutation__
+ *
+ * To run a mutation, you first call `useGetGroupLinkMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGetGroupLinkMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [getGroupLinkMutation, { data, loading, error }] = useGetGroupLinkMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetGroupLinkMutation(baseOptions?: Apollo.MutationHookOptions<GetGroupLinkMutation, GetGroupLinkMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<GetGroupLinkMutation, GetGroupLinkMutationVariables>(GetGroupLinkDocument, options);
+      }
+export type GetGroupLinkMutationHookResult = ReturnType<typeof useGetGroupLinkMutation>;
+export type GetGroupLinkMutationResult = Apollo.MutationResult<GetGroupLinkMutation>;
+export type GetGroupLinkMutationOptions = Apollo.BaseMutationOptions<GetGroupLinkMutation, GetGroupLinkMutationVariables>;
+export const GetReviewsGroupDocument = gql`
+    query getReviewsGroup {
+  getReviewsGroup {
+    reviewText
+    contentId
+    contentName
+    imageUrl
+    rating
+  }
+}
+    `;
+
+/**
+ * __useGetReviewsGroupQuery__
+ *
+ * To run a query within a React component, call `useGetReviewsGroupQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetReviewsGroupQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetReviewsGroupQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetReviewsGroupQuery(baseOptions?: Apollo.QueryHookOptions<GetReviewsGroupQuery, GetReviewsGroupQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetReviewsGroupQuery, GetReviewsGroupQueryVariables>(GetReviewsGroupDocument, options);
+      }
+export function useGetReviewsGroupLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetReviewsGroupQuery, GetReviewsGroupQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetReviewsGroupQuery, GetReviewsGroupQueryVariables>(GetReviewsGroupDocument, options);
+        }
+export type GetReviewsGroupQueryHookResult = ReturnType<typeof useGetReviewsGroupQuery>;
+export type GetReviewsGroupLazyQueryHookResult = ReturnType<typeof useGetReviewsGroupLazyQuery>;
+export type GetReviewsGroupQueryResult = Apollo.QueryResult<GetReviewsGroupQuery, GetReviewsGroupQueryVariables>;
 export const HelloDocument = gql`
     query hello {
   hello
@@ -117,6 +284,37 @@ export function useHelloLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Hell
 export type HelloQueryHookResult = ReturnType<typeof useHelloQuery>;
 export type HelloLazyQueryHookResult = ReturnType<typeof useHelloLazyQuery>;
 export type HelloQueryResult = Apollo.QueryResult<HelloQuery, HelloQueryVariables>;
+export const JoinGroupDocument = gql`
+    mutation JoinGroup($joinGroupToken: String!) {
+  joinGroup(token: $joinGroupToken)
+}
+    `;
+export type JoinGroupMutationFn = Apollo.MutationFunction<JoinGroupMutation, JoinGroupMutationVariables>;
+
+/**
+ * __useJoinGroupMutation__
+ *
+ * To run a mutation, you first call `useJoinGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useJoinGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [joinGroupMutation, { data, loading, error }] = useJoinGroupMutation({
+ *   variables: {
+ *      joinGroupToken: // value for 'joinGroupToken'
+ *   },
+ * });
+ */
+export function useJoinGroupMutation(baseOptions?: Apollo.MutationHookOptions<JoinGroupMutation, JoinGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<JoinGroupMutation, JoinGroupMutationVariables>(JoinGroupDocument, options);
+      }
+export type JoinGroupMutationHookResult = ReturnType<typeof useJoinGroupMutation>;
+export type JoinGroupMutationResult = Apollo.MutationResult<JoinGroupMutation>;
+export type JoinGroupMutationOptions = Apollo.BaseMutationOptions<JoinGroupMutation, JoinGroupMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($loginPassword: String!, $loginEmail: String!) {
   login(password: $loginPassword, email: $loginEmail) {
@@ -151,6 +349,38 @@ export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginM
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
 export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
 export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout {
+    accessToken
+  }
+}
+    `;
+export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMutationVariables>;
+
+/**
+ * __useLogoutMutation__
+ *
+ * To run a mutation, you first call `useLogoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLogoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [logoutMutation, { data, loading, error }] = useLogoutMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLogoutMutation(baseOptions?: Apollo.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, options);
+      }
+export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
+export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
+export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
 export const RegisterDocument = gql`
     mutation Register($registerName: String!, $registerPassword2: String!, $registerPassword: String!, $registerEmail: String!) {
   register(name: $registerName, password2: $registerPassword2, password: $registerPassword, email: $registerEmail) {

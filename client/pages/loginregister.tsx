@@ -11,7 +11,7 @@ import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { useRouter } from 'next/router'
 import { useLoginMutation, useRegisterMutation } from '../generated/graphql';
-import { setAccessToken } from '../components/accessToken';
+import { getAccessToken, setAccessToken } from '../components/accessToken';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -102,8 +102,11 @@ const Login:React.FC = () => {
       })
       if (response && response.data){
         setAccessToken(response.data.login.accessToken)
+        console.log(getAccessToken())
       }
-      router.push("/")
+      router.query.referer?
+      router.push(router.query.referer.toString()):
+      router.reload();
     }catch(error){
       console.log(error.message);
       setShowAlert(error.message);
@@ -207,7 +210,6 @@ const Login:React.FC = () => {
 }
 
 const Register:React.FC = () => {
-  
   const classes = useStyles();
   const router = useRouter();
   const [register] = useRegisterMutation();
@@ -279,7 +281,9 @@ const Register:React.FC = () => {
       if (response && response.data){
         setAccessToken(response.data.register.accessToken)
       }
-      router.push("/")
+      router.query.referer?
+      router.push(router.query.referer.toString()):
+      router.reload();
     } catch(error){
       console.log(error.message);
       setShowAlert(error.message);
@@ -438,7 +442,8 @@ const Register:React.FC = () => {
 
 const LoginRegister:React.FC = () => {
   const classes = useStyles();
-  const [value, setValue] = React.useState(1);
+  const [value, setValue] = React.useState(0);
+
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
