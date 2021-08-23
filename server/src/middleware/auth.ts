@@ -1,6 +1,6 @@
 import { verify } from "jsonwebtoken";
+import { MyContext } from "src/types";
 import { MiddlewareFn } from "type-graphql";
-import { ExpressContext } from "./ExpressContext";
 
 interface Payload {
   uid: number;
@@ -9,7 +9,7 @@ interface Payload {
   group: string;
 }
 
-export const isAuth: MiddlewareFn<ExpressContext> = ({ context }, next) => {
+export const isAuth: MiddlewareFn<MyContext> = ({ context }, next) => {
   const auth = context.req.headers["authorization"];
   if (!auth) {
     throw new Error("Not authorized");
