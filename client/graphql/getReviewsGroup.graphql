@@ -1,0 +1,9 @@
+query getReviewsGroup {
+  getReviewsGroup {
+    reviewText
+    contentId
+    contentName
+    imageUrl
+    rating
+  }
+}

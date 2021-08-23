@@ -104,7 +104,7 @@ const Login:React.FC = () => {
         setAccessToken(response.data.login.accessToken)
         console.log(getAccessToken())
       }
-      router.reload()
+      router.push(router.query.referer?.toString() || "/");
     }catch(error){
       console.log(error.message);
       setShowAlert(error.message);
@@ -208,7 +208,6 @@ const Login:React.FC = () => {
 }
 
 const Register:React.FC = () => {
-  
   const classes = useStyles();
   const router = useRouter();
   const [register] = useRegisterMutation();
@@ -280,7 +279,7 @@ const Register:React.FC = () => {
       if (response && response.data){
         setAccessToken(response.data.register.accessToken)
       }
-      router.push("/")
+      router.push(router.query.referer?.toString() || "/");
     } catch(error){
       console.log(error.message);
       setShowAlert(error.message);
@@ -440,6 +439,7 @@ const Register:React.FC = () => {
 const LoginRegister:React.FC = () => {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
+
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />

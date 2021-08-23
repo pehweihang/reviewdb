@@ -105,6 +105,11 @@ export type ByeQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ByeQuery = { __typename?: 'Query', bye: string };
 
+export type GetReviewsGroupQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetReviewsGroupQuery = { __typename?: 'Query', getReviewsGroup: Array<{ __typename?: 'ReviewResponse', reviewText: string, contentId: number, contentName: string, imageUrl: string, rating: number }> };
+
 export type HelloQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -166,6 +171,44 @@ export function useByeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ByeQue
 export type ByeQueryHookResult = ReturnType<typeof useByeQuery>;
 export type ByeLazyQueryHookResult = ReturnType<typeof useByeLazyQuery>;
 export type ByeQueryResult = Apollo.QueryResult<ByeQuery, ByeQueryVariables>;
+export const GetReviewsGroupDocument = gql`
+    query getReviewsGroup {
+  getReviewsGroup {
+    reviewText
+    contentId
+    contentName
+    imageUrl
+    rating
+  }
+}
+    `;
+
+/**
+ * __useGetReviewsGroupQuery__
+ *
+ * To run a query within a React component, call `useGetReviewsGroupQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetReviewsGroupQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetReviewsGroupQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetReviewsGroupQuery(baseOptions?: Apollo.QueryHookOptions<GetReviewsGroupQuery, GetReviewsGroupQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetReviewsGroupQuery, GetReviewsGroupQueryVariables>(GetReviewsGroupDocument, options);
+      }
+export function useGetReviewsGroupLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetReviewsGroupQuery, GetReviewsGroupQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetReviewsGroupQuery, GetReviewsGroupQueryVariables>(GetReviewsGroupDocument, options);
+        }
+export type GetReviewsGroupQueryHookResult = ReturnType<typeof useGetReviewsGroupQuery>;
+export type GetReviewsGroupLazyQueryHookResult = ReturnType<typeof useGetReviewsGroupLazyQuery>;
+export type GetReviewsGroupQueryResult = Apollo.QueryResult<GetReviewsGroupQuery, GetReviewsGroupQueryVariables>;
 export const HelloDocument = gql`
     query hello {
   hello

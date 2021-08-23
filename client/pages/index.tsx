@@ -1,6 +1,6 @@
+import router from 'next/router';
 import React,{useEffect,useState} from 'react'
 import { getAccessToken, setAccessToken } from '../components/accessToken';
-import { useByeQuery } from '../generated/graphql';
 import Home from './home'
 import LoginRegister from './loginregister'
 
@@ -9,7 +9,7 @@ const Index:React.FC = () => {
   const [Loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("effect")
+    console.log("page entered");
     fetch("http://localhost:8080/auth/token_refresh", {
       method: "POST",
       credentials: "include"
@@ -20,11 +20,8 @@ const Index:React.FC = () => {
     });
   }, []);
   if (!Loading){
-  if (getAccessToken()){
-    
-
-      return <Home/>;
-  }else return <LoginRegister/>
+    if (getAccessToken()) return <Home/>;
+    else return <LoginRegister/>
   }
   return <div>hi</div>
 }

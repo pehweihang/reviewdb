@@ -13,7 +13,6 @@ import SearchIcon from '@material-ui/icons/Search';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { useLogoutMutation } from '../generated/graphql';
 import { setAccessToken } from '../components/accessToken';
-import router from 'next/router';
 // import { MuiThemeProvider, createMuiTheme } from '@material-ui/styles';
 
 function Copyright() {
@@ -73,6 +72,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
+//going to be replaced with data package from backend
 const cards = [
   {title:'Tower of God',image:'tog.jpg',desc:'Some nigga called Bam',rating:4.2},
   {title:'Jujutsu Kaisen',image:'jjk.jpg',desc:'High school kid gets posessed',rating:4.5},
@@ -103,7 +104,7 @@ export default function Home() {
       setFilteredDataSource(masterDataSource);
       }
   };
- 
+
   const ratingRender = (rating: number) => {
     let ratingarr=[];
     for (let i=1;i<=5;i++){
@@ -116,10 +117,7 @@ export default function Home() {
   const [logoutMutation] =  useLogoutMutation();
   const logout = async() => {
     const response = await logoutMutation();
-    if (response && response.data) {
-      setAccessToken(response.data.logout.accessToken);
-      router.reload();
-    }
+    if (response && response.data) setAccessToken(response.data.logout.accessToken);
   }
 
   return (
