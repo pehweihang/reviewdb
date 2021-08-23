@@ -104,7 +104,9 @@ const Login:React.FC = () => {
         setAccessToken(response.data.login.accessToken)
         console.log(getAccessToken())
       }
-      router.push(router.query.referer?.toString() || "/");
+      router.query.referer?
+      router.push(router.query.referer.toString()):
+      router.reload();
     }catch(error){
       console.log(error.message);
       setShowAlert(error.message);
@@ -279,7 +281,9 @@ const Register:React.FC = () => {
       if (response && response.data){
         setAccessToken(response.data.register.accessToken)
       }
-      router.push(router.query.referer?.toString() || "/");
+      router.query.referer?
+      router.push(router.query.referer.toString()):
+      router.reload();
     } catch(error){
       console.log(error.message);
       setShowAlert(error.message);

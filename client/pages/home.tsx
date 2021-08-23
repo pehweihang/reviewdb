@@ -11,7 +11,7 @@ import StarBorderIcon from '@material-ui/icons/StarBorder';
 import StarHalfIcon from '@material-ui/icons/StarHalf';
 import SearchIcon from '@material-ui/icons/Search';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import { useLogoutMutation } from '../generated/graphql';
+import { useGetGroupLinkMutation, useLogoutMutation } from '../generated/graphql';
 import { setAccessToken } from '../components/accessToken';
 // import { MuiThemeProvider, createMuiTheme } from '@material-ui/styles';
 
@@ -119,7 +119,11 @@ export default function Home() {
     const response = await logoutMutation();
     if (response && response.data) setAccessToken(response.data.logout.accessToken);
   }
-
+  const [grouplinkMutation] = useGetGroupLinkMutation();
+  const getGroupLink = async() => {
+    const response = await grouplinkMutation();
+    if (response && response.data) console.log(response.data.getGroupLink);
+  }
   return (
     <React.Fragment>
       <CssBaseline />
@@ -131,6 +135,9 @@ export default function Home() {
               WeebCritic
             </Typography>
           </div>
+          <button onClick={() => getGroupLink()} style={{flex:1,flexDirection:'row',backgroundColor:'transparent',}}>
+            <Typography>grouplink</Typography>
+          </button>
           <button onClick={() => logout()} style={{flex:1,flexDirection:'row',backgroundColor:'transparent',}}>
             <Typography>Logout</Typography>
             <ExitToAppIcon/>

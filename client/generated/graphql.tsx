@@ -27,6 +27,7 @@ export type Mutation = {
   logout: LoginResponse;
   createGroup: Scalars['Boolean'];
   joinGroup: Scalars['Boolean'];
+  getGroupLink: Scalars['String'];
   addReview: Scalars['Boolean'];
   deleteReview: Scalars['Boolean'];
 };
@@ -52,7 +53,7 @@ export type MutationCreateGroupArgs = {
 
 
 export type MutationJoinGroupArgs = {
-  groupUuid: Scalars['String'];
+  token: Scalars['String'];
 };
 
 
@@ -105,6 +106,11 @@ export type ByeQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ByeQuery = { __typename?: 'Query', bye: string };
 
+export type GetGroupLinkMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetGroupLinkMutation = { __typename?: 'Mutation', getGroupLink: string };
+
 export type GetReviewsGroupQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -114,6 +120,13 @@ export type HelloQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type HelloQuery = { __typename?: 'Query', hello: string };
+
+export type JoinGroupMutationVariables = Exact<{
+  joinGroupToken: Scalars['String'];
+}>;
+
+
+export type JoinGroupMutation = { __typename?: 'Mutation', joinGroup: boolean };
 
 export type LoginMutationVariables = Exact<{
   loginPassword: Scalars['String'];
@@ -171,6 +184,36 @@ export function useByeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ByeQue
 export type ByeQueryHookResult = ReturnType<typeof useByeQuery>;
 export type ByeLazyQueryHookResult = ReturnType<typeof useByeLazyQuery>;
 export type ByeQueryResult = Apollo.QueryResult<ByeQuery, ByeQueryVariables>;
+export const GetGroupLinkDocument = gql`
+    mutation getGroupLink {
+  getGroupLink
+}
+    `;
+export type GetGroupLinkMutationFn = Apollo.MutationFunction<GetGroupLinkMutation, GetGroupLinkMutationVariables>;
+
+/**
+ * __useGetGroupLinkMutation__
+ *
+ * To run a mutation, you first call `useGetGroupLinkMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGetGroupLinkMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [getGroupLinkMutation, { data, loading, error }] = useGetGroupLinkMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetGroupLinkMutation(baseOptions?: Apollo.MutationHookOptions<GetGroupLinkMutation, GetGroupLinkMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<GetGroupLinkMutation, GetGroupLinkMutationVariables>(GetGroupLinkDocument, options);
+      }
+export type GetGroupLinkMutationHookResult = ReturnType<typeof useGetGroupLinkMutation>;
+export type GetGroupLinkMutationResult = Apollo.MutationResult<GetGroupLinkMutation>;
+export type GetGroupLinkMutationOptions = Apollo.BaseMutationOptions<GetGroupLinkMutation, GetGroupLinkMutationVariables>;
 export const GetReviewsGroupDocument = gql`
     query getReviewsGroup {
   getReviewsGroup {
@@ -241,6 +284,37 @@ export function useHelloLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Hell
 export type HelloQueryHookResult = ReturnType<typeof useHelloQuery>;
 export type HelloLazyQueryHookResult = ReturnType<typeof useHelloLazyQuery>;
 export type HelloQueryResult = Apollo.QueryResult<HelloQuery, HelloQueryVariables>;
+export const JoinGroupDocument = gql`
+    mutation JoinGroup($joinGroupToken: String!) {
+  joinGroup(token: $joinGroupToken)
+}
+    `;
+export type JoinGroupMutationFn = Apollo.MutationFunction<JoinGroupMutation, JoinGroupMutationVariables>;
+
+/**
+ * __useJoinGroupMutation__
+ *
+ * To run a mutation, you first call `useJoinGroupMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useJoinGroupMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [joinGroupMutation, { data, loading, error }] = useJoinGroupMutation({
+ *   variables: {
+ *      joinGroupToken: // value for 'joinGroupToken'
+ *   },
+ * });
+ */
+export function useJoinGroupMutation(baseOptions?: Apollo.MutationHookOptions<JoinGroupMutation, JoinGroupMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<JoinGroupMutation, JoinGroupMutationVariables>(JoinGroupDocument, options);
+      }
+export type JoinGroupMutationHookResult = ReturnType<typeof useJoinGroupMutation>;
+export type JoinGroupMutationResult = Apollo.MutationResult<JoinGroupMutation>;
+export type JoinGroupMutationOptions = Apollo.BaseMutationOptions<JoinGroupMutation, JoinGroupMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($loginPassword: String!, $loginEmail: String!) {
   login(password: $loginPassword, email: $loginEmail) {
