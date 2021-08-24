@@ -16,7 +16,6 @@ import { verify } from "jsonwebtoken";
 import { SearchResolver } from "./resolvers/SearchResolver";
 import { GroupResolver } from "./resolvers/GroupResolver";
 import { ReviewResolver } from "./resolvers/ReviewResolver";
-import sendgrid from "@sendgrid/mail";
 
 (async () => {
   const app = express();
@@ -64,7 +63,8 @@ import sendgrid from "@sendgrid/mail";
     context: ({ req, res }) => ({ req, res }),
   });
   await apolloserver.start();
-  apolloserver.applyMiddleware({ app, cors: false });
+  apolloserver.applyMiddleware({ app });
+
   app.listen(process.env.PORT || 8080, () => {
     console.log("express server started");
   });
