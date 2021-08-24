@@ -1,5 +1,5 @@
 import React from "react";
-import { setAccessToken } from "./accessToken";
+import { getAccessToken, setAccessToken } from "./accessToken";
 
 
 export const refreshToken = (setLoading: React.Dispatch<React.SetStateAction<boolean>>) => {

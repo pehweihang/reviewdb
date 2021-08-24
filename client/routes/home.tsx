@@ -13,6 +13,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { useGetGroupLinkMutation, useLogoutMutation } from '../generated/graphql';
 import { setAccessToken } from '../components/accessToken';
+import router from 'next/router';
 // import { MuiThemeProvider, createMuiTheme } from '@material-ui/styles';
 
 function Copyright() {
@@ -108,16 +109,19 @@ export default function Home() {
   const ratingRender = (rating: number) => {
     let ratingarr=[];
     for (let i=1;i<=5;i++){
-      if (i<=Math.floor(rating)) ratingarr.push(<StarIcon className={classes.icon}/>)
-      else if (i-rating<1) ratingarr.push(<StarHalfIcon className={classes.icon}/>)
-      else ratingarr.push(<StarBorderIcon className={classes.icon}/>)
+      if (i<=Math.floor(rating)) ratingarr.push(<StarIcon key={i} className={classes.icon}/>)
+      else if (i-rating<1) ratingarr.push(<StarHalfIcon key={i} className={classes.icon}/>)
+      else ratingarr.push(<StarBorderIcon key={i} className={classes.icon}/>)
     }
     return ratingarr;
   }
   const [logoutMutation] =  useLogoutMutation();
   const logout = async() => {
     const response = await logoutMutation();
-    if (response && response.data) setAccessToken(response.data.logout.accessToken);
+    if (response && response.data) {
+      setAccessToken(response.data.logout.accessToken);
+      router.reload();
+    }
   }
   const [grouplinkMutation] = useGetGroupLinkMutation();
   const getGroupLink = async() => {

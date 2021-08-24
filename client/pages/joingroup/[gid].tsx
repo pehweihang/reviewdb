@@ -4,31 +4,33 @@ import { getAccessToken } from '../../components/accessToken';
 import { useJoinGroupMutation } from '../../generated/graphql';
 import { refreshToken } from '../../components/refreshToken';
 
-
 const Joingroup:React.FC = () => {
   const [loading,setLoading] = useState(true);
   useEffect(() => {
     refreshToken(setLoading);
   }, [])
- 
   const [sendreq] = useJoinGroupMutation();
   const sendJoinGroupReq = async() => {
     const { gid } = router.query as any;
+    console.log("access token:",getAccessToken())
+    console.log('sent req')
     try{
-    const response = await sendreq({
-      variables: {
-        joinGroupToken:gid,
-      },
-    });
-    router.push("/?referer=joingroup");
-    } catch(error){
-      console.log(error);
+      const response=await sendreq({
+        variables: {
+          joinGroupToken:gid,
+        },
+      })
+      if (response) {
+        console.log("accesstoken after joining:",getAccessToken());
+        console.log("logged in and joined group");
+        router.push('/');
+      }
+    } catch(error) {
+      console.log("error: not logged in",error);
+      router.push(`/?referer=joingroup/${gid}`)
     }
-    
   }
-  if (!loading && getAccessToken()) sendJoinGroupReq();
-
-
+  if (!loading) sendJoinGroupReq();
   return <div>Joining group...</div>
 }
 
