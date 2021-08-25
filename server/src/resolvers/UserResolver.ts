@@ -111,7 +111,7 @@ export class UserResolver {
     try {
       await InvalidToken.insert({ token: token });
     } catch {}
-    res.cookie("oid", "");
+    sendRefreshToken(res, "");
     return { accessToken: "" };
   }
 
