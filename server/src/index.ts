@@ -6,7 +6,11 @@ import { createConnection } from "typeorm";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { InvalidToken } from "./entity/InvalidToken";
-import { createAccessToken, sendRefreshToken } from "./token";
+import {
+  createAccessToken,
+  createRefreshToken,
+  sendRefreshToken,
+} from "./token";
 import { User } from "./entity/User";
 import { verify } from "jsonwebtoken";
 import { SearchResolver } from "./resolvers/SearchResolver";
@@ -39,7 +43,7 @@ import { ReviewResolver } from "./resolvers/ReviewResolver";
       const user = await User.findOne({ id: payload.uid });
       if (user) {
         await InvalidToken.insert({ token: token });
-        sendRefreshToken(user!, res);
+        sendRefreshToken(res, createRefreshToken(user));
         return res.send({ accessToken: createAccessToken(user) });
       } else {
         return res.send({ accessToken: "" });

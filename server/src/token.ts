@@ -29,6 +29,9 @@ export const createRefreshToken = (user: User) => {
   );
 };
 
-export const sendRefreshToken = (user: User, res: Response) => {
-  res.cookie("oid", createRefreshToken(user!));
+export const sendRefreshToken = (res: Response, token: string) => {
+  res.cookie("oid", token, {
+    httpOnly: true,
+    path: "/auth/token_refresh",
+  });
 };
