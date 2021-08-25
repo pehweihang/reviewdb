@@ -10,7 +10,11 @@ import {
 } from "type-graphql";
 import { MyContext } from "../types";
 import { User } from "../entity/User";
-import { createAccessToken, sendRefreshToken } from "../token";
+import {
+  createAccessToken,
+  createRefreshToken,
+  sendRefreshToken,
+} from "../token";
 import { compare, hash } from "bcryptjs";
 import { isAuth } from "../middleware/auth";
 import { InvalidToken } from "../entity/InvalidToken";
@@ -71,7 +75,7 @@ export class UserResolver {
     }
 
     const user = await User.findOne({ email });
-    sendRefreshToken(user!, res);
+    sendRefreshToken(res, createRefreshToken(user!));
     return { accessToken: createAccessToken(user!) };
   }
 
@@ -91,7 +95,7 @@ export class UserResolver {
       throw new Error("Wrong email or password");
     }
 
-    sendRefreshToken(user!, res);
+    sendRefreshToken(res, createRefreshToken(user));
     return { accessToken: createAccessToken(user!) };
   }
 
