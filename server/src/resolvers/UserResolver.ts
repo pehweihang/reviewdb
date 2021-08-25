@@ -105,7 +105,7 @@ export class UserResolver {
   async logout(@Ctx() { req, res }: MyContext): Promise<LoginResponse> {
     const token = req.cookies.oid;
     if (!token) {
-      res.cookie("oid", "");
+      sendRefreshToken(res, "");
       return { accessToken: "" };
     }
     try {
