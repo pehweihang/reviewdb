@@ -63,7 +63,8 @@ import { ReviewResolver } from "./resolvers/ReviewResolver";
     context: ({ req, res }) => ({ req, res }),
   });
   await apolloserver.start();
-  apolloserver.applyMiddleware({ app, cors: false });
+  apolloserver.applyMiddleware({ app });
+
   app.listen(process.env.PORT || 8080, () => {
     console.log("express server started");
   });

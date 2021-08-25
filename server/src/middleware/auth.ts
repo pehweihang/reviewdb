@@ -3,7 +3,7 @@ import { MyContext } from "src/types";
 import { MiddlewareFn } from "type-graphql";
 
 interface Payload {
-  uid: number;
+  uid: string;
   email: string;
   name: string;
   group: string;

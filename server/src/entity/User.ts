@@ -11,8 +11,8 @@ import { Review } from "./Reviews";
 
 @Entity()
 export class User extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   @Column({
     unique: true,
@@ -24,6 +24,12 @@ export class User extends BaseEntity {
 
   @Column()
   name: string;
+
+  @Column({ type: "text", nullable: true })
+  resetPasswordToken!: string | null;
+
+  @Column({ type: "timestamptz", nullable: true })
+  resetPasswordExpiry!: Date | null;
 
   @ManyToOne(() => Group, (group) => group.users, { cascade: true })
   group: Group;
