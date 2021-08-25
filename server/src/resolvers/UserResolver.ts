@@ -19,7 +19,7 @@ import { compare, hash } from "bcryptjs";
 import { isAuth } from "../middleware/auth";
 import { InvalidToken } from "../entity/InvalidToken";
 import { v4 } from "uuid";
-import { sendEmail } from "src/utils/sendEmail";
+import { sendEmail } from "../utils/sendEmail";
 
 @ObjectType()
 class LoginResponse {
@@ -129,20 +129,23 @@ export class UserResolver {
     );
     user.resetPasswordToken = token;
     user.resetPasswordExpiry = new Date(Date.now() + 1000 * 60 * 60 * 24); //one day
+    await user.save();
     return true;
   }
 
   @Mutation(() => Boolean)
-  async changePassword(
+  async resetPassword(
     @Arg("token") token: string,
     @Arg("password") password: string
   ): Promise<Boolean> {
+    if (password.length < 8)
+      throw new Error("Password must at least be 8 characters");
     const user = await User.findOne({ id: token.split("=")[0] });
     if (!user) throw new Error("User not found");
 
     if (
       user.resetPasswordToken === token.split("=")[1] &&
-      user.resetPasswordExpiry.getDate() > Date.now()
+      user.resetPasswordExpiry!.getTime() > Date.now()
     ) {
       user.password = await hash(password, 11);
       user.resetPasswordToken = null;

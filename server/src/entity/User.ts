@@ -25,11 +25,11 @@ export class User extends BaseEntity {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
-  resetPasswordToken: string;
+  @Column({ type: "text", nullable: true })
+  resetPasswordToken!: string | null;
 
   @Column({ type: "timestamptz", nullable: true })
-  resetPasswordExpiry: Date;
+  resetPasswordExpiry!: Date | null;
 
   @ManyToOne(() => Group, (group) => group.users, { cascade: true })
   group: Group;
