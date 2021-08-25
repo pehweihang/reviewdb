@@ -18,6 +18,8 @@ import {
 import { compare, hash } from "bcryptjs";
 import { isAuth } from "../middleware/auth";
 import { InvalidToken } from "../entity/InvalidToken";
+import { v4 } from "uuid";
+import { sendEmail } from "src/utils/sendEmail";
 
 @ObjectType()
 class LoginResponse {
@@ -111,5 +113,44 @@ export class UserResolver {
     } catch {}
     res.cookie("oid", "");
     return { accessToken: "" };
+  }
+
+  @Mutation(() => Boolean)
+  async resetPasswordEmail(@Arg("email") email: string): Promise<Boolean> {
+    const user = await User.findOne({ email });
+    if (!user) return true;
+    const token = v4();
+    sendEmail(
+      email,
+      "Forget Password",
+      `Password reset link: ${
+        process.env.FRONTEND_URL! + "passwordreset/" + user.id + "=" + token
+      }`
+    );
+    user.resetPasswordToken = token;
+    user.resetPasswordExpiry = new Date(Date.now() + 1000 * 60 * 60 * 24); //one day
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async changePassword(
+    @Arg("token") token: string,
+    @Arg("password") password: string
+  ): Promise<Boolean> {
+    const user = await User.findOne({ id: token.split("=")[0] });
+    if (!user) throw new Error("User not found");
+
+    if (
+      user.resetPasswordToken === token.split("=")[1] &&
+      user.resetPasswordExpiry.getDate() > Date.now()
+    ) {
+      user.password = await hash(password, 11);
+      user.resetPasswordToken = null;
+      user.resetPasswordExpiry = null;
+      await user.save();
+      return true;
+    } else {
+      throw new Error("Invalid or expired link.");
+    }
   }
 }

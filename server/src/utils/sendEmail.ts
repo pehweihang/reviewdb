@@ -5,7 +5,7 @@ const mg = Mailgun({
   domain: process.env.MAILGUN_DOMAIN!,
 });
 
-export const sendMail = (to: string, subject: string, text: string) => {
+export const sendEmail = async (to: string, subject: string, text: string) => {
   mg.messages().send(
     {
       from: "WeebCritic noreply@weebcritic.com",
