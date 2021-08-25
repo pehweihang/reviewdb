@@ -258,7 +258,6 @@ const Register:React.FC = () => {
 
   const [isFormValid, setIsFormValid ] = useState(false);
   const validate = () => {
-    console.log(content.fname)
     if (!content.email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) 
       || content.fname.length==0 
       || content.password.length<8 
@@ -281,6 +280,7 @@ const Register:React.FC = () => {
       if (response && response.data){
         setAccessToken(response.data.register.accessToken)
       }
+      console.log(router.query.referer);
       router.query.referer?
       router.push(router.query.referer.toString()):
       router.reload();
