@@ -75,6 +75,8 @@ const useStyles = makeStyles((theme) => ({
 
 
 //going to be replaced with data package from backend
+
+const notInGroup =true
 const cards = [
   {title:'Tower of God',image:'tog.jpg',desc:'Some nigga called Bam',rating:4.2},
   {title:'Jujutsu Kaisen',image:'jjk.jpg',desc:'High school kid gets posessed',rating:4.5},
@@ -208,8 +210,11 @@ export default function Home() {
               </Grid> 
             )):
             <Grid item style={{flex:1}}>
-              <Typography color='secondary' variant='h4'>No webtoons found!</Typography>
-            </Grid>}
+              <Typography color='secondary' variant='h4'>
+                No content found! <link>Join</link> a group now! Or make your own group and start adding friends!
+              </Typography>
+            </Grid>
+          }
           </Grid>
         </Container>
       </main>

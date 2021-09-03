@@ -10,11 +10,11 @@ const Index:React.FC = () => {
   const [Loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("page entered");
+    console.log("index page entered");
     refreshToken(setLoading);
   }, []);
   if (!Loading){
-    console.log(getAccessToken());
+    console.log("hi");
     if (getAccessToken()) return <Home/>;
     else return <LoginRegister/>
   }

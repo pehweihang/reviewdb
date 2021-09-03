@@ -204,7 +204,6 @@ const Login:React.FC = () => {
             </Grid>
           </form>
         </div>
-      
     </Grid>
   );
 }
