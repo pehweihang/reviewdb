@@ -86,22 +86,23 @@ export class GroupResolver {
       { id: payload!.uid },
       { relations: ["group"] }
     );
-    console.log("here");
     if (user) {
       const group = user.group;
-      console.log("here2");
       if (!group) throw new Error("User not in group");
       const inviteLink = await GroupInviteLink.findOne({
         group: group,
         user: user,
       });
-      console.log("here3");
-      if (
-        inviteLink &&
-        inviteLink.joinGroupExpire.getTime() >
+      if (inviteLink) {
+        if (
+          inviteLink.joinGroupExpire.getTime() >
           Date.now() + 1000 * 60 * 60 * 24 * 2
-      ) {
-        return inviteLink.id + "=" + inviteLink.joinGroupToken;
+        ) {
+          return inviteLink.id + "=" + inviteLink.joinGroupToken;
+        } else {
+          GroupInviteLink.delete({ id: inviteLink.id });
+          return createGroupLink(user, group);
+        }
       } else {
         return createGroupLink(user, group);
       }
