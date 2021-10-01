@@ -15,6 +15,7 @@ import { useCreateGroupMutation, useGetGroupLinkMutation, useLogoutMutation } fr
 import { getAccessToken, setAccessToken } from '../components/accessToken';
 import router from 'next/router';
 import { FormatAlignJustify, Translate } from '@material-ui/icons';
+import { withApollo } from '../components/withApollo';
 // import { MuiThemeProvider, createMuiTheme } from '@material-ui/styles';
 
 function Copyright() {
@@ -93,7 +94,7 @@ const cards = [
 
 //data ends here
 
-export default function Home() {
+const Home:React.FC = () => {
   console.log(getAccessToken());
   const classes = useStyles();
   const [filteredDataSource, setFilteredDataSource] = useState(cards);
@@ -235,21 +236,33 @@ export default function Home() {
     <React.Fragment>
       <CssBaseline />
       <AppBar position="relative">
-        <Toolbar style={{width:'100%'}}>
-          <div style={{float:'left',flexDirection:'row',display:'flex'}}>
-            <StarsIcon className={classes.logo}/>
-            <Typography variant="h6" color="inherit" noWrap>
-              WeebCritic
-            </Typography>
-          </div>
-          <div style={{float:'right'}}>
-            <button onClick={() => getGroupLink()} style={{flexDirection:'row',backgroundColor:'transparent',}}>
-              <Typography>grouplink</Typography>
-            </button>
-            <button onClick={() => logout()} style={{display:'flex',flexDirection:'row',backgroundColor:'transparent',}}>
-              <Typography>Logout</Typography>
-              <ExitToAppIcon/>
-            </button>
+        <Toolbar>
+          <StarsIcon/>
+          <Typography variant="h6" color="inherit">
+            WeebCritic
+          </Typography>
+          <div>
+          <button 
+            onClick={() => getGroupLink()} 
+            style={{
+              justifySelf:'flex-end',
+              flexDirection:'row',
+              backgroundColor:'transparent',
+              
+            }}>
+            <Typography>grouplink</Typography>
+          </button>
+          <button 
+            onClick={() => logout()} 
+            style={{
+              justifySelf:'flex-end',
+              flexDirection:'row',
+              backgroundColor:'transparent',
+              
+            }}>
+            <Typography>Logout</Typography>
+            <ExitToAppIcon/>
+          </button>
           </div>
         </Toolbar>
       </AppBar>
@@ -300,3 +313,5 @@ export default function Home() {
     </React.Fragment>
   );
 }
+
+export default withApollo({ssr:true})(Home);
