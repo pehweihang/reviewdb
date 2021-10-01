@@ -1,7 +1,7 @@
 import React,{useState} from 'react';
 import {
   AppBar,Button,Card,CardActions,CardContent,CardMedia,CssBaseline,
-  Grid,Toolbar,Typography,TextField} from '@material-ui/core';
+  Grid,Toolbar,Typography,TextField,Modal} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Link from '@material-ui/core/Link';
@@ -11,9 +11,11 @@ import StarBorderIcon from '@material-ui/icons/StarBorder';
 import StarHalfIcon from '@material-ui/icons/StarHalf';
 import SearchIcon from '@material-ui/icons/Search';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import { useGetGroupLinkMutation, useLogoutMutation } from '../generated/graphql';
-import { setAccessToken } from '../components/accessToken';
+import { useCreateGroupMutation, useGetGroupLinkMutation, useLogoutMutation } from '../generated/graphql';
+import { getAccessToken, setAccessToken } from '../components/accessToken';
 import router from 'next/router';
+import { FormatAlignJustify, Translate } from '@material-ui/icons';
+import { withApollo } from '../components/withApollo';
 // import { MuiThemeProvider, createMuiTheme } from '@material-ui/styles';
 
 function Copyright() {
@@ -68,6 +70,10 @@ const useStyles = makeStyles((theme) => ({
     color:'white',
     borderRadius:20
   },
+  modalDiv: {
+    width:400,position:'relative',top:'30%',
+    margin:'auto',padding:15,paddingBottom:20,backgroundColor:'white'
+  },
   searchBar: {
     [`& fieldset`]:{borderRadius:30},
   },
@@ -75,6 +81,8 @@ const useStyles = makeStyles((theme) => ({
 
 
 //going to be replaced with data package from backend
+
+const notInGroup =true
 const cards = [
   {title:'Tower of God',image:'tog.jpg',desc:'Some nigga called Bam',rating:4.2},
   {title:'Jujutsu Kaisen',image:'jjk.jpg',desc:'High school kid gets posessed',rating:4.5},
@@ -84,13 +92,16 @@ const cards = [
   {title:'Tomb Raider King',image:'tombraiderking.jpg',desc:'Man goes back in time for revenge on the world',rating:3},
 ];
 
-export default function Home() {
+//data ends here
+
+const Home:React.FC = () => {
+  console.log(getAccessToken());
   const classes = useStyles();
   const [filteredDataSource, setFilteredDataSource] = useState(cards);
   const [masterDataSource, setMasterDataSource] = useState(cards);
+  const [open,setOpen] = useState(false);
  
   const searchFilterFunction = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("change")
     let text=e.target.value;
     if (text) {
       const newData = masterDataSource.filter(function (item) {
@@ -106,6 +117,61 @@ export default function Home() {
       }
   };
 
+  const cardsRender = (filteredDataSource: Array<any>) => {
+    let cardsarr=[];
+    if (filteredDataSource.length>0){
+      filteredDataSource.map((card,index) => (
+        cardsarr.push(
+        <Grid item key={index} xs={12} sm={6} md={4}>
+          <Card className={classes.card}>
+            <CardMedia
+              className={classes.cardMedia}
+              //have to change image source when connected to db/api
+              image={'/assets/'+card.image}
+              title="Image title"
+            />
+            <CardContent className={classes.cardContent}>
+              <Typography gutterBottom variant="h5" component="h2">
+                {card.title}
+              </Typography>
+              <div style={{flexDirection:'row',display:'flex',paddingTop:3,paddingBottom:3}}>
+              {ratingRender(card.rating)}
+              <Typography style={{paddingLeft:10,marginTop:2}}>{card.rating}</Typography>
+              </div>
+              <Typography>
+                {card.desc}
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button size="small" variant="contained" className={classes.reviewButton}>
+                Review
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
+        )
+      ))
+    }
+    cardsarr.push(
+    <Grid item key={filteredDataSource.length} xs={12} sm={6} md={4}>
+      <Card className={classes.card}>
+        <CardMedia
+          className={classes.cardMedia}
+          //have to change image source when connected to db/api
+          image={'/assets/plus.png'}
+          title="Image title"
+        />
+        <CardActions>
+          <Button onClick={()=>setOpen(true)} size="small" variant="contained" className={classes.reviewButton}>
+            Add a new anime/webtoon/manga
+          </Button>
+        </CardActions>
+      </Card>
+    </Grid> 
+    )
+    return cardsarr;
+  }
+
   const ratingRender = (rating: number) => {
     let ratingarr=[];
     for (let i=1;i<=5;i++){
@@ -115,6 +181,41 @@ export default function Home() {
     }
     return ratingarr;
   }
+
+  const [groupname,setgroupname] = useState('');
+  const setGroupname=(e : React.ChangeEvent<HTMLInputElement>)=>setgroupname(e.target.value);
+
+  const [createGroupMutation] = useCreateGroupMutation();
+  async function createGroup(e : React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const response = await createGroupMutation({variables:{GroupName:groupname}});
+    if (response && response.data) {
+      const link=getGroupLink()
+      link.then(() => router.push("http://localhost:3000/joingroup/"+link))
+    }
+  }
+
+  const newEntryModal = () => {
+    return(
+      <Modal
+        open={open}
+        onClose={()=>setOpen(false)}
+        aria-labelledby="AddNewEntry"
+      >
+          <form onSubmit={createGroup}>
+          <div className={classes.modalDiv}>
+            <h2>Add new entry</h2>
+            <p>
+              Looks like you're not in a group. Join a group via a link or make one to start reviewing now!
+            </p>
+            <TextField id='groupname' onChange={setGroupname} style={{paddingRight:10}} placeholder='Group name'/>
+            <Button type='submit' size="small" variant="contained" className={classes.reviewButton}>Make Group</Button>
+          </div>
+          </form>
+      </Modal>
+    )
+  }
+
   const [logoutMutation] =  useLogoutMutation();
   const logout = async() => {
     const response = await logoutMutation();
@@ -126,30 +227,46 @@ export default function Home() {
   const [grouplinkMutation] = useGetGroupLinkMutation();
   const getGroupLink = async() => {
     const response = await grouplinkMutation();
-    if (response && response.data) console.log(response.data.getGroupLink);
+    if (response && response.data) {
+      console.log(response.data.getGroupLink);
+      return response.data.getGroupLink;
+    }
   }
   return (
     <React.Fragment>
       <CssBaseline />
       <AppBar position="relative">
         <Toolbar>
-          <div style={{flex:1,flexDirection:'row'}}>
-            <StarsIcon className={classes.logo} />
-            <Typography variant="h6" color="inherit" noWrap>
-              WeebCritic
-            </Typography>
-          </div>
-          <button onClick={() => getGroupLink()} style={{flex:1,flexDirection:'row',backgroundColor:'transparent',}}>
+          <StarsIcon/>
+          <Typography variant="h6" color="inherit">
+            WeebCritic
+          </Typography>
+          <div>
+          <button 
+            onClick={() => getGroupLink()} 
+            style={{
+              justifySelf:'flex-end',
+              flexDirection:'row',
+              backgroundColor:'transparent',
+              
+            }}>
             <Typography>grouplink</Typography>
           </button>
-          <button onClick={() => logout()} style={{flex:1,flexDirection:'row',backgroundColor:'transparent',}}>
+          <button 
+            onClick={() => logout()} 
+            style={{
+              justifySelf:'flex-end',
+              flexDirection:'row',
+              backgroundColor:'transparent',
+              
+            }}>
             <Typography>Logout</Typography>
             <ExitToAppIcon/>
           </button>
+          </div>
         </Toolbar>
       </AppBar>
       <main>
-        {/* Hero unit */}
         <div className={classes.heroContent}>
           <Container maxWidth="sm">
             <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
@@ -176,40 +293,9 @@ export default function Home() {
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
-          {/* End hero unit */}
           <Grid container spacing={4}>
-            {filteredDataSource.length>0? filteredDataSource.map((card,index) => (
-              <Grid item key={index} xs={12} sm={6} md={4}>
-                <Card className={classes.card}>
-                  <CardMedia
-                    className={classes.cardMedia}
-                    //have to change image source when connected to db/api
-                    image={'/assets/'+card.image}
-                    title="Image title"
-                  />
-                  <CardContent className={classes.cardContent}>
-                    <Typography gutterBottom variant="h5" component="h2">
-                      {card.title}
-                    </Typography>
-                    <div style={{flexDirection:'row',display:'flex',paddingTop:3,paddingBottom:3}}>
-                    {ratingRender(card.rating)}
-                    <Typography style={{paddingLeft:10,marginTop:2}}>{card.rating}</Typography>
-                    </div>
-                    <Typography>
-                      {card.desc}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small" variant="contained" className={classes.reviewButton}>
-                      Review
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid> 
-            )):
-            <Grid item style={{flex:1}}>
-              <Typography color='secondary' variant='h4'>No webtoons found!</Typography>
-            </Grid>}
+            {cardsRender(filteredDataSource)}
+            {newEntryModal()}
           </Grid>
         </Container>
       </main>
@@ -227,3 +313,5 @@ export default function Home() {
     </React.Fragment>
   );
 }
+
+export default withApollo({ssr:true})(Home);

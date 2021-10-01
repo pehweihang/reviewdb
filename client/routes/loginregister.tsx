@@ -12,6 +12,7 @@ import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { useRouter } from 'next/router'
 import { useLoginMutation, useRegisterMutation } from '../generated/graphql';
 import { getAccessToken, setAccessToken } from '../components/accessToken';
+import { withApollo } from '../components/withApollo';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -431,7 +432,7 @@ const Register:React.FC = () => {
               className={classes.submit}
               disabled={!isFormValid}
             >
-              Sign In
+              Register
             </Button>
             </Grid>
           </form>
@@ -474,4 +475,4 @@ const LoginRegister:React.FC = () => {
   )
 }
 
-export default LoginRegister;
+export default withApollo({ssr:true})(LoginRegister);

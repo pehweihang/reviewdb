@@ -1,13 +1,12 @@
-import { ApolloProvider } from "@apollo/client";
-import { getAccessToken, setAccessToken } from "../components/accessToken";
-import { ApolloClient } from '@apollo/client';
-import { InMemoryCache } from "@apollo/client";
+import { withApollo as createWithApollo } from "next-apollo";
+import { ApolloClient, InMemoryCache } from "@apollo/client";
+
+import { getAccessToken, setAccessToken } from "./accessToken";
 import { HttpLink } from "apollo-link-http";
 import { onError } from "apollo-link-error";
 import { ApolloLink, Observable } from "apollo-link";
 import { TokenRefreshLink } from "apollo-link-token-refresh";
 import jwtDecode from "jwt-decode";
-import { AppProps } from "next/dist/shared/lib/router/router";
 const backend_api='localhost:8080'
 const cache = new InMemoryCache({});
 
@@ -42,9 +41,8 @@ const requestLink = new ApolloLink(
     })
 );
 
-const client = new ApolloClient({
-  link: ApolloLink.from([
-    new TokenRefreshLink({
+
+  const tokenRefreshLink: any = new TokenRefreshLink({
       accessTokenField: "accessToken",
       isTokenValidOrUndefined: () => {
         const token = getAccessToken();
@@ -54,7 +52,8 @@ const client = new ApolloClient({
         }
 
         try {
-          const { exp } = jwtDecode(token);
+          const obj:any = jwtDecode(token);
+          const exp = obj.exp;
           if (Date.now() >= exp * 1000) {
             return false;
           } else {
@@ -77,7 +76,10 @@ const client = new ApolloClient({
         console.warn("Your refresh token is invalid. Try to relogin");
         console.error(err);
       }
-    }),
+    })
+
+const client = new ApolloClient({
+  link: ApolloLink.from([tokenRefreshLink,
     onError(({ graphQLErrors, networkError }) => {
       console.log(graphQLErrors);
       console.log(networkError);
@@ -91,13 +93,4 @@ const client = new ApolloClient({
   cache
 });
 
-function MyApp({ Component, pageProps } : AppProps) {
-  return (
-    // <ApolloProvider client={client}>
-      <Component {...pageProps} />
-    // </ApolloProvider>
-  );
-}
-
-
-export default MyApp
+export const withApollo = createWithApollo(client);

@@ -1,0 +1,3 @@
+mutation createGroup($GroupName: String!) {
+  createGroup(groupName: $GroupName)
+}

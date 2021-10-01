@@ -6,10 +6,11 @@ import { refreshToken } from '../../components/refreshToken';
 
 const Joingroup:React.FC = () => {
   const [loading,setLoading] = useState(true);
+  const [sendreq] = useJoinGroupMutation();
   useEffect(() => {
     refreshToken(setLoading);
   }, [])
-  const [sendreq] = useJoinGroupMutation();
+  
   const sendJoinGroupReq = async() => {
     const { gid } = router.query as any;
     console.log("access token:",getAccessToken())
