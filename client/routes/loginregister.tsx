@@ -107,7 +107,7 @@ const Login:React.FC = () => {
       router.query.referer?
       router.push(router.query.referer.toString()):
       router.reload();
-    }catch(error){
+    }catch(error:any){
       console.log(error.message);
       setShowAlert(error.message);
     }
@@ -284,7 +284,7 @@ const Register:React.FC = () => {
       router.query.referer?
       router.push(router.query.referer.toString()):
       router.reload();
-    } catch(error){
+    } catch(error:any){
       console.log(error.message);
       setShowAlert(error.message);
     }
