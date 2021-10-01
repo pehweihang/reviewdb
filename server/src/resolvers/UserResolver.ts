@@ -73,6 +73,7 @@ export class UserResolver {
         name,
       });
     } catch (err) {
+      if (err.code == 23505) throw new Error("Email already in use.");
       throw new Error(err);
     }
 
