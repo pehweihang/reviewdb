@@ -38,7 +38,7 @@ export class ReviewResolver {
   async getReviewsGroup(
     @Ctx() { payload }: MyContext
   ): Promise<[ReviewResponse]> {
-    const reviews = await Review.find({ where: { group: payload!.group } });
+    const reviews = await Review.find({ where: { group: payload!.groupName } });
     console.log(reviews);
     return reviews as any;
   }
