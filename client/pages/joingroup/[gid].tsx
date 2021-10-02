@@ -3,8 +3,10 @@ import router from "next/router";
 import { getAccessToken } from '../../components/accessToken';
 import { useJoinGroupMutation } from '../../generated/graphql';
 import { refreshToken } from '../../components/refreshToken';
+import { withApollo } from 'next-apollo';
 
 const Joingroup:React.FC = () => {
+  console.log("hi")
   const [loading,setLoading] = useState(true);
   const [sendreq] = useJoinGroupMutation();
   useEffect(() => {

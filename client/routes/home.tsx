@@ -16,6 +16,8 @@ import { getAccessToken, setAccessToken } from '../components/accessToken';
 import router from 'next/router';
 import { FormatAlignJustify, Translate } from '@material-ui/icons';
 import { withApollo } from '../components/withApollo';
+import JwtDecode from 'jwt-decode';
+import { Payload } from '../types';
 // import { MuiThemeProvider, createMuiTheme } from '@material-ui/styles';
 
 function Copyright() {
@@ -82,7 +84,6 @@ const useStyles = makeStyles((theme) => ({
 
 //going to be replaced with data package from backend
 
-const notInGroup =true
 const cards = [
   {title:'Tower of God',image:'tog.jpg',desc:'Some nigga called Bam',rating:4.2},
   {title:'Jujutsu Kaisen',image:'jjk.jpg',desc:'High school kid gets posessed',rating:4.5},
@@ -94,8 +95,11 @@ const cards = [
 
 //data ends here
 
+
+
 const Home:React.FC = () => {
-  console.log(getAccessToken());
+  const payload: Payload = JwtDecode(getAccessToken()) as Payload
+  const groupName = payload.groupName
   const classes = useStyles();
   const [filteredDataSource, setFilteredDataSource] = useState(cards);
   const [masterDataSource, setMasterDataSource] = useState(cards);
@@ -182,20 +186,21 @@ const Home:React.FC = () => {
     return ratingarr;
   }
 
-  const [groupname,setgroupname] = useState('');
-  const setGroupname=(e : React.ChangeEvent<HTMLInputElement>)=>setgroupname(e.target.value);
+  const [newGroupName, setNewGroupName] = useState('');
+  const setNewGroupNameEvent=(e : React.ChangeEvent<HTMLInputElement>)=>setNewGroupName(e.target.value);
 
   const [createGroupMutation] = useCreateGroupMutation();
   async function createGroup(e : React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const response = await createGroupMutation({variables:{GroupName:groupname}});
+    const response = await createGroupMutation({variables:{GroupName:newGroupName}});
     if (response && response.data) {
-      const link=getGroupLink()
-      link.then(() => router.push("http://localhost:3000/joingroup/"+link))
+      const link = await getGroupLink()
+      console.log(link)
+      router.push("http://localhost:3000/joingroup/"+link)
     }
   }
 
-  const newEntryModal = () => {
+  const joinGroupModal = () => {
     return(
       <Modal
         open={open}
@@ -204,11 +209,32 @@ const Home:React.FC = () => {
       >
           <form onSubmit={createGroup}>
           <div className={classes.modalDiv}>
-            <h2>Add new entry</h2>
+            <h2>Hey, lets make a group!</h2>
             <p>
               Looks like you're not in a group. Join a group via a link or make one to start reviewing now!
             </p>
-            <TextField id='groupname' onChange={setGroupname} style={{paddingRight:10}} placeholder='Group name'/>
+            <TextField id='groupname' onChange={setNewGroupNameEvent} style={{paddingRight:10}} placeholder='Group name'/>
+            <Button type='submit' size="small" variant="contained" className={classes.reviewButton}>Make Group</Button>
+          </div>
+          </form>
+      </Modal>
+    )
+  }
+
+  const getGroupLinkModal = () => {
+    return(
+      <Modal
+        open={open}
+        onClose={()=>setOpen(false)}
+        aria-labelledby="AddNewEntry"
+      >
+          <form onSubmit={createGroup}>
+          <div className={classes.modalDiv}>
+            <h2>Hey, lets make a group!</h2>
+            <p>
+              Looks like you're not in a group. Join a group via a link or make one to start reviewing now!
+            </p>
+            <TextField id='groupname' onChange={setNewGroupNameEvent} style={{paddingRight:10}} placeholder='Group name'/>
             <Button type='submit' size="small" variant="contained" className={classes.reviewButton}>Make Group</Button>
           </div>
           </form>
@@ -242,6 +268,7 @@ const Home:React.FC = () => {
             WeebCritic
           </Typography>
           <div>
+          {groupName?
           <button 
             onClick={() => getGroupLink()} 
             style={{
@@ -250,8 +277,21 @@ const Home:React.FC = () => {
               backgroundColor:'transparent',
               
             }}>
-            <Typography>grouplink</Typography>
+              {console.log("gn",payload)}
+            <Typography>Get group invite link</Typography>:
+            
+          </button>:
+          <button 
+          onClick={() => setOpen(true)} 
+          style={{
+            justifySelf:'flex-end',
+            flexDirection:'row',
+            backgroundColor:'transparent',
+            
+          }}>
+          <Typography>Join a group</Typography>
           </button>
+          }
           <button 
             onClick={() => logout()} 
             style={{
@@ -295,7 +335,7 @@ const Home:React.FC = () => {
         <Container className={classes.cardGrid} maxWidth="md">
           <Grid container spacing={4}>
             {cardsRender(filteredDataSource)}
-            {newEntryModal()}
+            {joinGroupModal()}
           </Grid>
         </Container>
       </main>
