@@ -8,7 +8,8 @@ export const createAccessToken = (user: User) => {
       uid: user.id,
       email: user.email,
       name: user.name,
-      group: user.group ? user.group.id : "",
+      groupName: user.group ? user.group.name : "",
+      groupId: user.group ? user.group.id : "",
     },
     process.env.JWT_ACCESS_SECRET!,
     {
