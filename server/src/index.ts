@@ -40,7 +40,10 @@ import { ReviewResolver } from "./resolvers/ReviewResolver";
     }
     try {
       const payload = verify(token, process.env.JWT_REFRESH_SECRET!) as any;
-      const user = await User.findOne({ id: payload.uid });
+      const user = await User.findOne(
+        { id: payload.uid },
+        { relations: ["group"] }
+      );
       if (user) {
         await InvalidToken.insert({ token: token });
         sendRefreshToken(res, createRefreshToken(user));
