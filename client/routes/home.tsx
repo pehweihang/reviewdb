@@ -1,7 +1,8 @@
-import React,{useState} from 'react';
+import React,{useState, useEffect} from 'react';
 import {
   AppBar,Button,Card,CardActions,CardContent,CardMedia,CssBaseline,
-  Grid,Toolbar,Typography,TextField,Modal} from '@material-ui/core';
+  Grid,Toolbar,Typography,TextField,Modal, List, ListItemAvatar, ListItemText, Avatar, Box} from '@material-ui/core';
+import {ListItemButton, Rating} from '@mui/material'
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Link from '@material-ui/core/Link';
@@ -11,13 +12,14 @@ import StarBorderIcon from '@material-ui/icons/StarBorder';
 import StarHalfIcon from '@material-ui/icons/StarHalf';
 import SearchIcon from '@material-ui/icons/Search';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import { useCreateGroupMutation, useGetGroupLinkMutation, useLogoutMutation } from '../generated/graphql';
+import { useCreateGroupMutation, useGetGroupLinkMutation, useLogoutMutation, useMalSearchMutation } from '../generated/graphql';
 import { getAccessToken, setAccessToken } from '../components/accessToken';
 import router from 'next/router';
-import { FormatAlignJustify, Translate } from '@material-ui/icons';
 import { withApollo } from '../components/withApollo';
 import JwtDecode from 'jwt-decode';
 import { Payload } from '../types';
+import loadConfig from 'next/dist/server/config';
+import { ValuesOfCorrectTypeRule } from 'graphql';
 // import { MuiThemeProvider, createMuiTheme } from '@material-ui/styles';
 
 function Copyright() {
@@ -76,6 +78,10 @@ const useStyles = makeStyles((theme) => ({
     width:400,position:'relative',top:'30%',
     margin:'auto',padding:15,paddingBottom:20,backgroundColor:'white'
   },
+  addReviewDiv: {
+    top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white',
+    position: 'absolute', width: '80%', height: '60%', display: 'flex'
+  },
   searchBar: {
     [`& fieldset`]:{borderRadius:30},
   },
@@ -103,7 +109,9 @@ const Home:React.FC = () => {
   const classes = useStyles();
   const [filteredDataSource, setFilteredDataSource] = useState(cards);
   const [masterDataSource, setMasterDataSource] = useState(cards);
-  const [open,setOpen] = useState(false);
+  const [NewGroupModal,setNewGroupModal] = useState(false);
+  const [groupLinkModal,setGroupLinkModal] = useState(false);
+
  
   const searchFilterFunction = (e: React.ChangeEvent<HTMLInputElement>) => {
     let text=e.target.value;
@@ -166,7 +174,7 @@ const Home:React.FC = () => {
           title="Image title"
         />
         <CardActions>
-          <Button onClick={()=>setOpen(true)} size="small" variant="contained" className={classes.reviewButton}>
+          <Button onClick={()=>groupName?setCreateReviewModal(true):setNewGroupModal(true)} size="small" variant="contained" className={classes.reviewButton}>
             Add a new anime/webtoon/manga
           </Button>
         </CardActions>
@@ -203,8 +211,8 @@ const Home:React.FC = () => {
   const joinGroupModal = () => {
     return(
       <Modal
-        open={open}
-        onClose={()=>setOpen(false)}
+        open={NewGroupModal}
+        onClose={()=>setNewGroupModal(false)}
         aria-labelledby="AddNewEntry"
       >
           <form onSubmit={createGroup}>
@@ -221,25 +229,156 @@ const Home:React.FC = () => {
     )
   }
 
+  const [groupLink, setGroupLink] = useState("");
+  const [grouplinkMutation] = useGetGroupLinkMutation();
+  const getGroupLink = async () => {
+    const response = await grouplinkMutation();
+    if (response && response.data) {
+      setGroupLink(response.data.getGroupLink)
+      return response.data.getGroupLink;
+    }
+  }
+
+  useEffect(() => {
+    getGroupLink()
+  }, [groupLink])
+
+
   const getGroupLinkModal = () => {
     return(
       <Modal
-        open={open}
-        onClose={()=>setOpen(false)}
-        aria-labelledby="AddNewEntry"
+        open={groupLinkModal}
+        onClose={()=>setGroupLinkModal(false)}
+        aria-labelledby="grouplinkdisplay"
       >
-          <form onSubmit={createGroup}>
-          <div className={classes.modalDiv}>
-            <h2>Hey, lets make a group!</h2>
-            <p>
-              Looks like you're not in a group. Join a group via a link or make one to start reviewing now!
-            </p>
-            <TextField id='groupname' onChange={setNewGroupNameEvent} style={{paddingRight:10}} placeholder='Group name'/>
-            <Button type='submit' size="small" variant="contained" className={classes.reviewButton}>Make Group</Button>
-          </div>
-          </form>
+        <div className={classes.modalDiv}>
+          <h2>Group Invite Link</h2>
+          <p>
+            Send this link to your friends to invite them to your group:<br/>
+            {groupLink ? `localhost:3000/joingroup/${groupLink}` : "loading..."}
+          </p>
+        </div>
       </Modal>
     )
+  }
+
+  const [CreateReviewModal,setCreateReviewModal] = useState(false);
+  const createReviewModal = () => {
+    return(
+      <Modal
+        open={CreateReviewModal}
+        onClose={()=>setCreateReviewModal(false)}
+        aria-labelledby="New review"
+      >
+          <div className={classes.modalDiv}>
+            <h2>Add new review</h2>
+            <p>
+              Type the anime name in the searchbar to add it for review:
+            </p>
+            <TextField 
+              className={classes.searchBar}
+              placeholder="Search by title"
+              inputProps={{style:{paddingLeft:10}}}
+              InputProps={{ disableUnderline:true,startAdornment: <SearchIcon/>}}
+              onChange={newTitleSearch}
+            />
+            <List>
+            {searchResults.length > 0 && searchResults.map( (value: any, _index) => {
+              return (
+              <ListItemButton onClick={()=> {
+                setTitleToBeAdded(value)
+                setAddReviewModal(true)
+                setCreateReviewModal(false)
+              }}>
+                <ListItemAvatar>
+                  <Avatar src={value.image_url} variant="rounded"/>
+                </ListItemAvatar>
+                <ListItemText primary={value.title}/>
+              </ListItemButton>)
+            })
+            }
+            </List>
+          </div>
+      </Modal>
+    )
+  }
+
+  const [titleToBeAdded,setTitleToBeAdded] = useState({})
+  const [AddReviewModal,setAddReviewModal] = useState(false);
+  
+  const [rating, setRating] = useState(0)
+  const [hover, setHover] = useState(0)
+  const handleRating = (rate:number) => setRating(rate)
+  const addReviewModal = () => {
+    return (
+      <Modal 
+        open={AddReviewModal}
+        onClose={()=>setAddReviewModal(false)}
+        aria-labelledby="add review">
+          <div className={classes.addReviewDiv}>
+            <div style={{flex:1,padding:'3%',display:'flex',height:'80%',aspectRatio:'1/1.5', overflow:'hidden',alignSelf:'center', alignItems: 'center',justifyContent:'center'}}>
+              <img style={{width:'100%',alignSelf:'center'}} src={titleToBeAdded.image_url}/>
+            </div>
+            <div aria-label="review part" style={{flex:1,display:'flex',flexDirection:'column',padding:'5%'}}>
+              <Box style={{fontSize:50}}>{titleToBeAdded.title}</Box>
+              <div style={{flexDirection:'row',display:'flex'}}>
+              <Rating 
+                name="simple-controlled"
+                value={rating}
+                precision={0.5}
+                onChange={(event, newValue) => {
+                  setRating(newValue);
+                }}
+                onChangeActive={(event, newHover) => {
+                  setHover(newHover);
+                }}
+                emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
+              />
+              <Box style={{fontSize:20}} sx={{ ml: 2 }}>{hover!==-1?hover:rating}</Box>
+              </div>
+              <Box>Description</Box>
+            </div>
+            <form  
+              onSubmit={reviewSubmit} 
+              style={{
+                flex:1,
+                display:'flex',
+                flexDirection:'column',
+                alignItems:'center',
+                justifyContent:'center',
+                padding:'3%'
+              }}
+            >
+              <TextField 
+                variant='outlined' 
+                type='text' 
+                name='reviewtext' 
+                placeholder="10/10 would bang the mc!"
+                multiline
+                style={{width:'100%'}}
+                rows={4}
+              />
+              <Button style={{marginTop:'3%',alignSelf:'flex-end'}} size="small" variant="contained" className={classes.reviewButton}>
+                Add new review
+              </Button>
+            </form>
+          </div>
+      </Modal>
+    )
+  }
+
+  const reviewSubmit = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.reviewtext.value)
+  }
+
+  const [searchResults, setSearchResults] = useState([])
+  const [malSearch] = useMalSearchMutation();
+  const newTitleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    let text = e.target.value
+    if (text.length > 4){
+    let results = await malSearch({variables: {malSearchType: "anime", malSearchQ: text}})
+    setSearchResults(results.data?.malSearch as any)
+  } else setSearchResults([])
   }
 
   const [logoutMutation] =  useLogoutMutation();
@@ -250,44 +389,37 @@ const Home:React.FC = () => {
       router.reload();
     }
   }
-  const [grouplinkMutation] = useGetGroupLinkMutation();
-  const getGroupLink = async() => {
-    const response = await grouplinkMutation();
-    if (response && response.data) {
-      console.log(response.data.getGroupLink);
-      return response.data.getGroupLink;
-    }
-  }
+  
   return (
     <React.Fragment>
       <CssBaseline />
       <AppBar position="relative">
         <Toolbar>
           <StarsIcon/>
+          <div style={{flex:1}}>
           <Typography variant="h6" color="inherit">
             WeebCritic
           </Typography>
-          <div>
+          </div>
+          <div style={{flex:1,display:'flex',justifyContent:'flex-end'}}>
           {groupName?
           <button 
-            onClick={() => getGroupLink()} 
+            onClick={() => setGroupLinkModal(true)} 
             style={{
               justifySelf:'flex-end',
               flexDirection:'row',
               backgroundColor:'transparent',
               
             }}>
-              {console.log("gn",payload)}
             <Typography>Get group invite link</Typography>:
             
           </button>:
           <button 
-          onClick={() => setOpen(true)} 
+          onClick={() => setNewGroupModal(true)} 
           style={{
             justifySelf:'flex-end',
             flexDirection:'row',
             backgroundColor:'transparent',
-            
           }}>
           <Typography>Join a group</Typography>
           </button>
@@ -298,7 +430,7 @@ const Home:React.FC = () => {
               justifySelf:'flex-end',
               flexDirection:'row',
               backgroundColor:'transparent',
-              
+              display:'flex',
             }}>
             <Typography>Logout</Typography>
             <ExitToAppIcon/>
@@ -336,6 +468,9 @@ const Home:React.FC = () => {
           <Grid container spacing={4}>
             {cardsRender(filteredDataSource)}
             {joinGroupModal()}
+            {getGroupLinkModal()}
+            {createReviewModal()}
+            {addReviewModal()}
           </Grid>
         </Container>
       </main>

@@ -1,0 +1,3 @@
+mutation addReview($addReviewRating: Float!, $addReviewReviewText: String!, $addReviewImageUrl: String!, $addReviewContentName: String!, $addReviewContentId: Float!) {
+  addReview(rating: $addReviewRating, reviewText: $addReviewReviewText, imageUrl: $addReviewImageUrl, contentName: $addReviewContentName, contentId: $addReviewContentId)
+}

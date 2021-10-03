@@ -3,7 +3,6 @@ import { getAccessToken, setAccessToken } from "./accessToken";
 
 
 export const refreshToken = (setLoading: React.Dispatch<React.SetStateAction<boolean>>) => {
-  console.log("refreshing token")
   fetch("http://localhost:8080/auth/token_refresh", {
   method: "POST",
   credentials: "include"
