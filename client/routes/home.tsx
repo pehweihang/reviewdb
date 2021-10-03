@@ -1,4 +1,4 @@
-import React,{useState, useEffect} from 'react';
+import React,{useState, useEffect,useCallback} from 'react';
 import {
   AppBar,Button,Card,CardActions,CardContent,CardMedia,CssBaseline,
   Grid,Toolbar,Typography,TextField,Modal, List, ListItemAvatar, ListItemText, Avatar, Box} from '@material-ui/core';
@@ -12,14 +12,14 @@ import StarBorderIcon from '@material-ui/icons/StarBorder';
 import StarHalfIcon from '@material-ui/icons/StarHalf';
 import SearchIcon from '@material-ui/icons/Search';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import { useCreateGroupMutation, useGetGroupLinkMutation, useLogoutMutation, useMalSearchMutation } from '../generated/graphql';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { useAddReviewMutation, useCreateGroupMutation, useGetGroupLinkMutation, useLogoutMutation, useMalSearchMutation } from '../generated/graphql';
 import { getAccessToken, setAccessToken } from '../components/accessToken';
 import router from 'next/router';
 import { withApollo } from '../components/withApollo';
 import JwtDecode from 'jwt-decode';
 import { Payload } from '../types';
-import loadConfig from 'next/dist/server/config';
-import { ValuesOfCorrectTypeRule } from 'graphql';
+import debounce from 'lodash.debounce';
 // import { MuiThemeProvider, createMuiTheme } from '@material-ui/styles';
 
 function Copyright() {
@@ -75,8 +75,8 @@ const useStyles = makeStyles((theme) => ({
     borderRadius:20
   },
   modalDiv: {
-    width:400,position:'relative',top:'30%',
-    margin:'auto',padding:15,paddingBottom:20,backgroundColor:'white'
+    top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white',
+    position: 'absolute', width: '40%', aspectRatio:'2', display: 'flex',flexDirection:'column',padding:'1%',
   },
   addReviewDiv: {
     top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white',
@@ -255,15 +255,40 @@ const Home:React.FC = () => {
           <h2>Group Invite Link</h2>
           <p>
             Send this link to your friends to invite them to your group:<br/>
-            {groupLink ? `localhost:3000/joingroup/${groupLink}` : "loading..."}
+            <div style={{display:'flex',flexDirection:'row'}}>
+              <div style={{padding:'1%',border:'1px solid black',width:'70%',whiteSpace:'nowrap',overflow:'hidden'}}>{groupLink ? `localhost:3000/joingroup/${groupLink}` : "loading..."}</div>
+              <button onClick={() => {navigator.clipboard.writeText(`localhost:3000/joingroup/${groupLink}`)}}><ContentCopyIcon/></button>
+            </div>
           </p>
         </div>
       </Modal>
     )
   }
 
+
+  const [searchResults, setSearchResults] = useState([]);
+  const [malSearch] = useMalSearchMutation();
+  const newTitleSearch = async (newvalue:any) => {
+    if (newvalue.length > 4){
+    let results = await malSearch({variables: {malSearchType: "anime", malSearchQ: newvalue}})
+    setSearchResults(results.data?.malSearch as any)
+  } else setSearchResults([])
+  }
+
+  const [newReviewQuery, setnewReviewQuery] = useState('');
   const [CreateReviewModal,setCreateReviewModal] = useState(false);
   const createReviewModal = () => {
+    const debouncedSave = useCallback(
+      debounce( (newvalue) => newTitleSearch(newvalue), 1000),
+      []
+    );
+
+    const updateValue = (newvalue:any) => {
+      console.log("in")
+      setnewReviewQuery(newvalue);
+      debouncedSave(newvalue);
+    };
+
     return(
       <Modal
         open={CreateReviewModal}
@@ -280,7 +305,7 @@ const Home:React.FC = () => {
               placeholder="Search by title"
               inputProps={{style:{paddingLeft:10}}}
               InputProps={{ disableUnderline:true,startAdornment: <SearchIcon/>}}
-              onChange={newTitleSearch}
+              onChange={(input) => updateValue(input.target.value)}
             />
             <List>
             {searchResults.length > 0 && searchResults.map( (value: any, _index) => {
@@ -308,7 +333,6 @@ const Home:React.FC = () => {
   
   const [rating, setRating] = useState(0)
   const [hover, setHover] = useState(0)
-  const handleRating = (rate:number) => setRating(rate)
   const addReviewModal = () => {
     return (
       <Modal 
@@ -320,7 +344,7 @@ const Home:React.FC = () => {
               <img style={{width:'100%',alignSelf:'center'}} src={titleToBeAdded.image_url}/>
             </div>
             <div aria-label="review part" style={{flex:1,display:'flex',flexDirection:'column',padding:'5%'}}>
-              <Box style={{fontSize:50}}>{titleToBeAdded.title}</Box>
+              <Box style={{fontSize:30}}>{titleToBeAdded.title}</Box>
               <div style={{flexDirection:'row',display:'flex'}}>
               <Rating 
                 name="simple-controlled"
@@ -358,7 +382,7 @@ const Home:React.FC = () => {
                 style={{width:'100%'}}
                 rows={4}
               />
-              <Button style={{marginTop:'3%',alignSelf:'flex-end'}} size="small" variant="contained" className={classes.reviewButton}>
+              <Button type='submit' style={{marginTop:'3%',alignSelf:'flex-end'}} size="small" variant="contained" className={classes.reviewButton}>
                 Add new review
               </Button>
             </form>
@@ -366,20 +390,30 @@ const Home:React.FC = () => {
       </Modal>
     )
   }
-
-  const reviewSubmit = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.reviewtext.value)
+  const [addReview] = useAddReviewMutation();
+  async function reviewSubmit(e: React.FormEvent<HTMLFormElement>){
+    e.preventDefault();
+    console.log("review submitted:",e.target.reviewtext.value)
+   
+    try{
+      const response = await addReview({
+        variables: {
+          addReviewRating:rating,
+          addReviewReviewText:e.target.reviewtext.value,
+          addReviewContentName:titleToBeAdded.title,
+          addReviewImageUrl:titleToBeAdded.image_url,
+          addReviewContentId:1,
+        },
+      })
+      if (response){
+        console.log("response",response)
+        //router.reload();
+      }
+    }catch(error:any){
+      console.log("ERROR\n",error.message);
+    }
   }
 
-  const [searchResults, setSearchResults] = useState([])
-  const [malSearch] = useMalSearchMutation();
-  const newTitleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    let text = e.target.value
-    if (text.length > 4){
-    let results = await malSearch({variables: {malSearchType: "anime", malSearchQ: text}})
-    setSearchResults(results.data?.malSearch as any)
-  } else setSearchResults([])
-  }
 
   const [logoutMutation] =  useLogoutMutation();
   const logout = async() => {
