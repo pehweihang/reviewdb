@@ -26,7 +26,6 @@ export type Mutation = {
   logout: LoginResponse;
   resetPasswordEmail: Scalars['Boolean'];
   resetPassword: Scalars['Boolean'];
-  malSearch: Array<SearchResponse>;
   createGroup: Scalars['Boolean'];
   joinGroup: Scalars['Boolean'];
   getGroupLink: Scalars['String'];
@@ -60,12 +59,6 @@ export type MutationResetPasswordArgs = {
 };
 
 
-export type MutationMalSearchArgs = {
-  type: Scalars['String'];
-  q: Scalars['String'];
-};
-
-
 export type MutationCreateGroupArgs = {
   groupName: Scalars['String'];
 };
@@ -93,8 +86,15 @@ export type Query = {
   __typename?: 'Query';
   hello: Scalars['String'];
   bye: Scalars['String'];
+  malSearch: Array<SearchResponse>;
   getReviewsGroup: Array<ReviewResponse>;
   getReiewsUser: Array<ReviewResponse>;
+};
+
+
+export type QueryMalSearchArgs = {
+  type: Scalars['String'];
+  q: Scalars['String'];
 };
 
 export type ReviewResponse = {
@@ -171,13 +171,13 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 export type LogoutMutation = { __typename?: 'Mutation', logout: { __typename?: 'LoginResponse', accessToken: string } };
 
-export type MalSearchMutationVariables = Exact<{
+export type MalSearchQueryVariables = Exact<{
   malSearchType: Scalars['String'];
   malSearchQ: Scalars['String'];
 }>;
 
 
-export type MalSearchMutation = { __typename?: 'Mutation', malSearch: Array<{ __typename?: 'SearchResponse', url: string, image_url: string, title: string }> };
+export type MalSearchQuery = { __typename?: 'Query', malSearch: Array<{ __typename?: 'SearchResponse', url: string, image_url: string, title: string }> };
 
 export type RegisterMutationVariables = Exact<{
   registerName: Scalars['String'];
@@ -492,7 +492,7 @@ export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
 export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
 export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
 export const MalSearchDocument = gql`
-    mutation malSearch($malSearchType: String!, $malSearchQ: String!) {
+    query malSearch($malSearchType: String!, $malSearchQ: String!) {
   malSearch(type: $malSearchType, q: $malSearchQ) {
     url
     image_url
@@ -500,33 +500,35 @@ export const MalSearchDocument = gql`
   }
 }
     `;
-export type MalSearchMutationFn = Apollo.MutationFunction<MalSearchMutation, MalSearchMutationVariables>;
 
 /**
- * __useMalSearchMutation__
+ * __useMalSearchQuery__
  *
- * To run a mutation, you first call `useMalSearchMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useMalSearchMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
+ * To run a query within a React component, call `useMalSearchQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMalSearchQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const [malSearchMutation, { data, loading, error }] = useMalSearchMutation({
+ * const { data, loading, error } = useMalSearchQuery({
  *   variables: {
  *      malSearchType: // value for 'malSearchType'
  *      malSearchQ: // value for 'malSearchQ'
  *   },
  * });
  */
-export function useMalSearchMutation(baseOptions?: Apollo.MutationHookOptions<MalSearchMutation, MalSearchMutationVariables>) {
+export function useMalSearchQuery(baseOptions: Apollo.QueryHookOptions<MalSearchQuery, MalSearchQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<MalSearchMutation, MalSearchMutationVariables>(MalSearchDocument, options);
+        return Apollo.useQuery<MalSearchQuery, MalSearchQueryVariables>(MalSearchDocument, options);
       }
-export type MalSearchMutationHookResult = ReturnType<typeof useMalSearchMutation>;
-export type MalSearchMutationResult = Apollo.MutationResult<MalSearchMutation>;
-export type MalSearchMutationOptions = Apollo.BaseMutationOptions<MalSearchMutation, MalSearchMutationVariables>;
+export function useMalSearchLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MalSearchQuery, MalSearchQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MalSearchQuery, MalSearchQueryVariables>(MalSearchDocument, options);
+        }
+export type MalSearchQueryHookResult = ReturnType<typeof useMalSearchQuery>;
+export type MalSearchLazyQueryHookResult = ReturnType<typeof useMalSearchLazyQuery>;
+export type MalSearchQueryResult = Apollo.QueryResult<MalSearchQuery, MalSearchQueryVariables>;
 export const RegisterDocument = gql`
     mutation Register($registerName: String!, $registerPassword2: String!, $registerPassword: String!, $registerEmail: String!) {
   register(

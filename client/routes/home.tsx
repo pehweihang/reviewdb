@@ -13,7 +13,7 @@ import StarHalfIcon from '@material-ui/icons/StarHalf';
 import SearchIcon from '@material-ui/icons/Search';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { useAddReviewMutation, useCreateGroupMutation, useGetGroupLinkMutation, useLogoutMutation, useMalSearchMutation } from '../generated/graphql';
+import { useAddReviewMutation, useCreateGroupMutation, useGetGroupLinkMutation, useLogoutMutation, useMalSearchQuery } from '../generated/graphql';
 import { getAccessToken, setAccessToken } from '../components/accessToken';
 import router from 'next/router';
 import { withApollo } from '../components/withApollo';
@@ -78,6 +78,11 @@ const useStyles = makeStyles((theme) => ({
     top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white',
     position: 'absolute', width: '40%', aspectRatio:'2', display: 'flex',flexDirection:'column',padding:'1%',
   },
+  searchModal: {
+    top: '30%', left: '50%', transform: 'translate(0%, -50%)', backgroundColor: 'white',
+    position: 'absolute', width: '40%', aspectRatio:'2', display: 'flex',flexDirection:'column',padding:'1%',
+  },
+
   addReviewDiv: {
     top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white',
     position: 'absolute', width: '80%', height: '60%', display: 'flex'
@@ -266,28 +271,19 @@ const Home:React.FC = () => {
   }
 
 
-  const [searchResults, setSearchResults] = useState([]);
-  const [malSearch] = useMalSearchMutation();
-  const newTitleSearch = async (newvalue:any) => {
-    if (newvalue.length > 4){
-    let results = await malSearch({variables: {malSearchType: "anime", malSearchQ: newvalue}})
-    setSearchResults(results.data?.malSearch as any)
-  } else setSearchResults([])
-  }
 
   const [newReviewQuery, setnewReviewQuery] = useState('');
   const [CreateReviewModal,setCreateReviewModal] = useState(false);
   const createReviewModal = () => {
-    const debouncedSave = useCallback(
-      debounce( (newvalue) => newTitleSearch(newvalue), 1000),
-      []
-    );
 
-    const updateValue = (newvalue:any) => {
-      console.log("in")
-      setnewReviewQuery(newvalue);
-      debouncedSave(newvalue);
-    };
+    const {data, error, loading} = useMalSearchQuery({
+        variables: {
+            malSearchQ: newReviewQuery,
+            malSearchType: "anime"
+            },
+        })
+    console.log(data)
+
 
     return(
       <Modal
@@ -305,10 +301,10 @@ const Home:React.FC = () => {
               placeholder="Search by title"
               inputProps={{style:{paddingLeft:10}}}
               InputProps={{ disableUnderline:true,startAdornment: <SearchIcon/>}}
-              onChange={(input) => updateValue(input.target.value)}
+              onChange={(input) => setnewReviewQuery(input.target.value)}
             />
             <List>
-            {searchResults.length > 0 && searchResults.map( (value: any, _index) => {
+            {!loading && !error  && newReviewQuery.length>2 ? data?.malSearch.map( (value: any, _index) => {
               return (
               <ListItemButton onClick={()=> {
                 setTitleToBeAdded(value)
@@ -320,7 +316,9 @@ const Home:React.FC = () => {
                 </ListItemAvatar>
                 <ListItemText primary={value.title}/>
               </ListItemButton>)
-            })
+            }) : 
+                newReviewQuery.length > 2 && (<ListItemText primary={'loading...'}/>)
+                
             }
             </List>
           </div>

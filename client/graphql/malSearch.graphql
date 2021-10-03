@@ -1,4 +1,4 @@
-mutation malSearch($malSearchType: String!, $malSearchQ: String!) {
+query malSearch($malSearchType: String!, $malSearchQ: String!) {
   malSearch(type: $malSearchType, q: $malSearchQ) {
     url
     image_url
