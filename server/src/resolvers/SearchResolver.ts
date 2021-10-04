@@ -29,6 +29,7 @@ export class SearchResolver {
         title: result.title,
         url: result.url,
         image_url: result.image_url,
+        description: result.synopsis,
       };
     });
     return ret;
