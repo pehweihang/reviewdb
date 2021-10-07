@@ -11,8 +11,8 @@ import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { useRouter } from 'next/router'
 import { useLoginMutation, useRegisterMutation } from '../generated/graphql';
-import { getAccessToken, setAccessToken } from '../components/accessToken';
-import { withApollo } from '../components/withApollo';
+import { getAccessToken, setAccessToken } from '../utils/accessToken';
+import { withApollo } from '../utils/withApollo';
 
 
 const useStyles = makeStyles((theme) => ({

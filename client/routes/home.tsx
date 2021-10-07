@@ -1,7 +1,7 @@
-import React,{useState, useEffect,useCallback} from 'react';
+import React,{useState, useEffect, useCallback, useRef} from 'react';
 import {
   AppBar,Button,Card,CardActions,CardContent,CardMedia,CssBaseline,
-  Grid,Toolbar,Typography,TextField,Modal, List, ListItemAvatar, ListItemText, Avatar, Box} from '@material-ui/core';
+  Grid,Toolbar,Typography,TextField,Modal, List, ListItemAvatar, ListItemText, Avatar, Box, Switch} from '@material-ui/core';
 import {ListItemButton, Rating} from '@mui/material'
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
@@ -14,9 +14,9 @@ import SearchIcon from '@material-ui/icons/Search';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useAddReviewMutation, useCreateGroupMutation, useGetGroupLinkMutation, useLogoutMutation, useMalSearchQuery } from '../generated/graphql';
-import { getAccessToken, setAccessToken } from '../components/accessToken';
+import { getAccessToken, setAccessToken } from '../utils/accessToken';
 import router from 'next/router';
-import { withApollo } from '../components/withApollo';
+import { withApollo } from '../utils/withApollo';
 import JwtDecode from 'jwt-decode';
 import { Payload } from '../types';
 import debounce from 'lodash.debounce';
@@ -79,8 +79,8 @@ const useStyles = makeStyles((theme) => ({
     position: 'absolute', width: '40%', aspectRatio:'2', display: 'flex',flexDirection:'column',padding:'1%',
   },
   searchModal: {
-    top: '30%', left: '50%', transform: 'translate(0%, -50%)', backgroundColor: 'white',
-    position: 'absolute', width: '40%', aspectRatio:'2', display: 'flex',flexDirection:'column',padding:'1%',
+    top: '10%', left: '50%', transform: 'translate(-50%, -0%)', backgroundColor: 'white',
+    position: 'absolute', width: '40%', display: 'flex',flexDirection:'column',padding:'1%',
   },
 
   addReviewDiv: {
@@ -105,7 +105,6 @@ const cards = [
 ];
 
 //data ends here
-
 
 
 const Home:React.FC = () => {
@@ -155,9 +154,6 @@ const Home:React.FC = () => {
               {ratingRender(card.rating)}
               <Typography style={{paddingLeft:10,marginTop:2}}>{card.rating}</Typography>
               </div>
-              <Typography>
-                {card.desc}
-              </Typography>
             </CardContent>
             <CardActions>
               <Button size="small" variant="contained" className={classes.reviewButton}>
@@ -244,10 +240,17 @@ const Home:React.FC = () => {
     }
   }
 
-  useEffect(() => {
-    getGroupLink()
-  }, [groupLink])
+  // useEffect(() => {
+  //   getGroupLink()
+  // }, [groupLink])
 
+  const mounted = useRef();
+  useEffect(() => {
+    if (!mounted.current) mounted.current = true;
+    else {
+      getGroupLink()
+    }
+  },[groupLink]);
 
   const getGroupLinkModal = () => {
     return(
@@ -271,18 +274,17 @@ const Home:React.FC = () => {
   }
 
 
-
   const [newReviewQuery, setnewReviewQuery] = useState('');
   const [CreateReviewModal,setCreateReviewModal] = useState(false);
+  const [contentType, setcontentType] = useState(false);
   const createReviewModal = () => {
 
     const {data, error, loading} = useMalSearchQuery({
-        variables: {
-            malSearchQ: newReviewQuery,
-            malSearchType: "anime"
-            },
-        })
-    console.log(data)
+      variables: {
+        malSearchQ: newReviewQuery,
+        malSearchType: contentType?'manga':'anime'
+        },
+    })
 
 
     return(
@@ -291,18 +293,27 @@ const Home:React.FC = () => {
         onClose={()=>setCreateReviewModal(false)}
         aria-labelledby="New review"
       >
-          <div className={classes.modalDiv}>
+          <div className={classes.searchModal}>
             <h2>Add new review</h2>
             <p>
               Type the anime name in the searchbar to add it for review:
             </p>
-            <TextField 
-              className={classes.searchBar}
-              placeholder="Search by title"
-              inputProps={{style:{paddingLeft:10}}}
-              InputProps={{ disableUnderline:true,startAdornment: <SearchIcon/>}}
-              onChange={(input) => setnewReviewQuery(input.target.value)}
-            />
+            <div style={{display:'flex',flexDirection:'row',alignItems:'center'}}>
+              <TextField 
+                variant='standard'
+                className={classes.searchBar}
+                placeholder="Search by title"
+                inputProps={{style:{paddingLeft:10}}}
+                InputProps={{ disableUnderline:true,startAdornment: <SearchIcon/>}}
+                onChange={(input) => setnewReviewQuery(input.target.value)}
+              />
+              <Typography style={{verticalAlign:'text-bottom'}}>Anime</Typography>
+              <Switch 
+                checked={contentType}
+                onChange={(e)=>setcontentType(e.target.checked)}
+              />
+              <Typography>Manga/Manhwa</Typography>
+            </div>
             <List>
             {!loading && !error  && newReviewQuery.length>2 ? data?.malSearch.map( (value: any, _index) => {
               return (
@@ -405,13 +416,55 @@ const Home:React.FC = () => {
       })
       if (response){
         console.log("response",response)
-        //router.reload();
+        router.reload();
       }
     }catch(error:any){
       console.log("ERROR\n",error.message);
     }
   }
 
+  const[currentReview,setcurrentReview] = useState({title:'',rating:0});
+  const[viewReviewModalopen,setviewReviewModalopen] = useState(false);
+  const viewReviewModal = () => {
+    return(
+      <Modal
+        open={groupLinkModal}
+        onClose={()=>setGroupLinkModal(false)}
+        aria-labelledby="grouplinkdisplay"
+      >
+        <div className={classes.modalDiv}>
+          <h2>Group Invite Link</h2>
+          <p>
+            {currentReview.title}<br/>
+            <div style={{display:'flex',flexDirection:'row'}}>
+              <div style={{flex:1,padding:'3%',display:'flex',height:'80%',aspectRatio:'1/1.5', overflow:'hidden',alignSelf:'center', alignItems: 'center',justifyContent:'center'}}>
+                <img style={{width:'100%',alignSelf:'center'}} src={titleToBeAdded.image_url}/>
+              </div>
+              <div aria-label="review part" style={{flex:1,display:'flex',flexDirection:'column',padding:'5%'}}>
+                <Box style={{fontSize:30}}>{titleToBeAdded.title}</Box>
+                <div style={{flexDirection:'row',display:'flex'}}>
+                <Rating 
+                  name="simple-controlled"
+                  value={rating}
+                  precision={0.5}
+                  onChange={(event, newValue) => {
+                    setRating(newValue);
+                  }}
+                  onChangeActive={(event, newHover) => {
+                    setHover(newHover);
+                  }}
+                  emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
+                />
+                <Box style={{fontSize:20}} sx={{ ml: 2 }}>{hover!==-1?hover:rating}</Box>
+                </div>
+                <Box>Description</Box>
+              </div>
+            </div>
+          </p>
+        </div>
+      </Modal>
+    )
+  }
 
   const [logoutMutation] =  useLogoutMutation();
   const logout = async() => {

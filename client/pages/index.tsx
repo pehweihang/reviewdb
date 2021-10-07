@@ -1,7 +1,7 @@
 import router from 'next/router';
 import React,{useEffect,useState} from 'react'
-import { getAccessToken } from '../components/accessToken';
-import { refreshToken } from '../components/refreshToken';
+import { getAccessToken } from '../utils/accessToken';
+import { refreshToken } from '../utils/refreshToken';
 import Home from '../routes/home'
 import LoginRegister from '../routes/loginregister'
 

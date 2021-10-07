@@ -1,5 +1,5 @@
 import { ApolloProvider } from "@apollo/client";
-import { getAccessToken, setAccessToken } from "../components/accessToken";
+import { getAccessToken, setAccessToken } from "../utils/accessToken";
 import { ApolloClient } from '@apollo/client';
 import { InMemoryCache } from "@apollo/client";
 import { HttpLink } from "apollo-link-http";

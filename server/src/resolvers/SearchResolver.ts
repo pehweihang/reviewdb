@@ -1,4 +1,4 @@
-import { Arg, Field, ObjectType, Query, Resolver } from "type-graphql";
+import { Arg, Field, Query, ObjectType, Resolver } from "type-graphql";
 import axios from "axios";
 
 @ObjectType()

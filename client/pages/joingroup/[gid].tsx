@@ -1,8 +1,8 @@
 import React, {useState,useEffect} from 'react';
 import router from "next/router";
-import { getAccessToken } from '../../components/accessToken';
+import { getAccessToken } from '../../utils/accessToken';
 import { useJoinGroupMutation } from '../../generated/graphql';
-import { refreshToken } from '../../components/refreshToken';
+import { refreshToken } from '../../utils/refreshToken';
 import { withApollo } from 'next-apollo';
 
 const Joingroup:React.FC = () => {
