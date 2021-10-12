@@ -17,10 +17,7 @@ export class Review extends BaseEntity {
   contentId: number;
 
   @Column()
-  contentName: string;
-
-  @Column()
-  imageUrl: string;
+  contentType: string;
 
   @Column({
     type: "float4",

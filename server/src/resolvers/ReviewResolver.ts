@@ -12,6 +12,7 @@ import {
   UseMiddleware,
 } from "type-graphql";
 import { isAuth } from "../middleware/auth";
+import { Anime, Manga } from "src/entity/Content";
 
 @ObjectType()
 class ReviewResponse {
@@ -25,10 +26,25 @@ class ReviewResponse {
   imageUrl: string;
 
   @Field()
-  rating: number;
+  decription: string;
 
   @Field()
-  reviewText: string;
+  reviews: Reviews;
+}
+
+@ObjectType()
+class Reviews {
+  @Field()
+  reviewId: number;
+
+  @Field()
+  reviewer: string;
+
+  @Field()
+  reviewText: number;
+
+  @Field()
+  rating: number;
 }
 
 @Resolver()
@@ -39,17 +55,15 @@ export class ReviewResolver {
     @Ctx() { payload }: MyContext
   ): Promise<[ReviewResponse]> {
     const reviews = await Review.find({ where: { group: payload!.groupName } });
-    console.log(reviews);
     return reviews as any;
   }
 
   @Query(() => [ReviewResponse])
   @UseMiddleware(isAuth)
-  async getReiewsUser(
+  async getReviewsUser(
     @Ctx() { payload }: MyContext
   ): Promise<[ReviewResponse]> {
     const reviews = await Review.find({ where: { user: payload!.uid } });
-    console.log(reviews);
     return reviews as any;
   }
 
@@ -59,7 +73,9 @@ export class ReviewResolver {
     @Ctx() { payload }: MyContext,
     @Arg("contentId") contentId: number,
     @Arg("contentName") contentName: string,
+    @Arg("contentType") contentType: string,
     @Arg("imageUrl") imageUrl: string,
+    @Arg("description") description: string,
     @Arg("reviewText") reviewText: string,
     @Arg("rating") rating: number
   ): Promise<Boolean> {
@@ -68,16 +84,27 @@ export class ReviewResolver {
       { relations: ["group"] }
     );
     if (user) {
-      console.log(user.group);
+      // check if anime/manga exists in db
+      if (
+        contentType == "anime"
+          ? !(await Anime.findOne("contentId"))
+          : !Manga.findOne("contentId")
+      ) {
+        const content = contentType == "anime" ? new Anime() : new Manga();
+        content.id = contentId;
+        content.title = contentName;
+        content.img_url = imageUrl;
+        content.description = description;
+        content.save();
+      }
+
       const review = new Review();
       review.contentId = contentId;
-      review.contentName = contentName;
-      review.imageUrl = imageUrl;
+      review.contentType = contentType;
       review.rating = rating;
       review.reviewText = reviewText;
       review.user = user;
       review.group = user.group;
-      console.log(review);
       await review.save();
       return true;
     } else {
